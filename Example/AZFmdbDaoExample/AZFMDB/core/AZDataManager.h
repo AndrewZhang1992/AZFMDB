@@ -1,6 +1,5 @@
 //
 //  AZDataManager.h
-//  AZFmdbDaoExample
 //
 //  Created by Andrew on 16/3/8.
 //  Copyright © 2016年 Andrew. All rights reserved.
@@ -9,7 +8,9 @@
 #import "AZDataBaseManager.h"
 #import "AZDao.h"
 
+// 默认db存在的路径
 #define DB_PATH_ADDR [NSString stringWithFormat:@"%@/Library/testDB.db",NSHomeDirectory()]
+
 
 @interface AZDataManager : AZDataBaseManager
 
@@ -45,6 +46,16 @@
  *  @param model
  */
 -(BOOL)insertModel:(id)model;
+
+/**
+ *  批量增加model
+ *
+ *  @param ary NSArray< model >
+ *
+ *  @return bool
+ */
+-(BOOL)insertModelsByTransaction:(NSArray *)ary;
+
 
 /**
  *  删除某一个model

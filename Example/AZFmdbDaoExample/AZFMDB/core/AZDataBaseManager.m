@@ -33,12 +33,6 @@
     return self;
 }
 
-/**
- *  创建表
- *
- *  @param name 表名
- *  @param dict  NSDictionary
- */
 - (void)createTableWithName:(NSString *)name Column:(NSDictionary *)dict
 {
     [_lock lock];
@@ -56,7 +50,7 @@
     [_lock unlock];
 }
 
-/**建表*/
+
 - (void)createTableWithName:(NSString *)name primaryKey:(NSString *)key type:(NSString *)type otherColumn:(NSDictionary *)dict
 {
     [_lock lock];
@@ -81,7 +75,7 @@
     [_lock unlock];
 }
 
-/**插入记录*/
+
 - (BOOL)insertRecordWithColumns:(NSDictionary *)dict toTable:(NSString *)tableName
 {
     [_lock lock];
@@ -108,7 +102,47 @@
 }
 
 
-/**删除记录*/
+-(BOOL)insertRecordByTransactionWithColumns:(NSArray *)ary toTable:(NSString *)tableName
+{
+    [_lock lock];
+
+    [_database beginTransaction];
+    BOOL isRollBack = NO;
+    @try {
+        // 预加载执行
+        for (NSDictionary* dict in ary)
+        {
+            NSString * columnNames = [dict.allKeys componentsJoinedByString:@", "];
+            NSMutableArray * xArray = [NSMutableArray array];
+            for (NSString * key in dict)
+            {
+                [xArray addObject:@"?"];
+            }
+            NSString * valueStr = [xArray componentsJoinedByString:@", "];
+            NSString * sql = [NSString stringWithFormat:@"INSERT INTO %@(%@) VALUES(%@);", tableName, columnNames, valueStr];
+            BOOL ret = [_database executeUpdate:sql withArgumentsInArray:dict.allValues];
+            if (!ret) {
+                NSLog(@"插入数据失败");
+            }
+        }
+    }
+    @catch (NSException *exception) {
+        isRollBack = YES;
+        [_database rollback];
+        NSLog(@"事务操作失败 原因：%@",exception.reason);
+    }
+    @finally {
+        if (!isRollBack) {
+            [_database commit];
+        }
+    }
+
+    [_lock unlock];
+
+    return !isRollBack;
+}
+
+
 - (BOOL)removeRecordWithCondition:(NSString *)condition fromTable:(NSString *)tableName
 {
     [_lock lock];
@@ -130,7 +164,7 @@
     return ret;
 }
 
-/** 更新记录，第一个参数：字典，键表示需要更新的类名，值为相应列的值；第二个参数：条件，必须指明条件才能更新；第三个参数：表名*/
+
 -(BOOL)updataRecordWithColumns:(NSDictionary *)dict Condition:(NSString *)condition toTable:(NSString *)tableName
 {
     [_lock lock];
@@ -153,7 +187,50 @@
 
     return ret;
 }
-/**查找记录*/
+
+-(BOOL)updataRecordByTransactionWithColumns:(NSArray *)ary Condition:(NSString *)condition toTable:(NSString *)tableName
+{
+    [_lock lock];
+    
+    [_database beginTransaction];
+    BOOL isRollBack = NO;
+    @try {
+        // 预加载执行
+        for (NSDictionary *dict in ary)
+        {
+            NSString * sql = [NSString stringWithFormat:@"UPDATE %@ SET  ", tableName];
+            NSMutableArray * xArray = [NSMutableArray array];
+            for (NSString *key in dict) {
+                [xArray addObject:[NSString stringWithFormat:@"%@=?",key]];
+            }
+            NSString *str=[xArray componentsJoinedByString:@","];
+            
+            sql=[sql stringByAppendingFormat:@"%@ %@",str,condition];
+            sql = [sql stringByAppendingString:@";"];
+            
+            BOOL ret = [_database executeUpdate:sql withArgumentsInArray:dict.allValues];
+            if (!ret) {
+                perror("更新错误");
+            }
+        }
+    }
+    @catch (NSException *exception) {
+        isRollBack = YES;
+        [_database rollback];
+        NSLog(@"事务操作失败 原因：%@",exception.reason);
+    }
+    @finally {
+        if (!isRollBack) {
+            [_database commit];
+        }
+    }
+    
+    [_lock unlock];
+    
+    return !isRollBack;
+}
+
+
 - (FMResultSet *)findColumnNames:(NSArray *)names recordsWithCondition:(NSString *)condition fromTable:(NSString *)tableName
 {
     [_lock lock];
@@ -177,35 +254,67 @@
     
     return set;
 }
-/**打开数据库*/
+
 -(void)open
 {
     BOOL res=[_database open];
     if (!res) {
-        NSLog(@"数据库打开失败");
+        perror("数据库打开失败");
     }
 }
+
 
 -(void)close
 {
     BOOL res=[_database close];
     if (!res) {
-        NSLog(@"数据库关闭失败");
+        perror("数据库关闭失败");
     }
 
 }
 
 
-/**执行  SQL 语句 不带返回结果的*/
 -(void)executeUpdate:(NSString *)sql
 {
     [_database executeUpdate:sql];
 }
 
+-(BOOL)executeUpdateByTransaction:(NSArray *)sqlAry
+{
+    [_lock lock];
+    
+    [_database beginTransaction];
+    BOOL isRollBack = NO;
+    @try {
+        // 预加载执行
+        for (NSString *sql in sqlAry) {
+            BOOL ret=[_database executeUpdate:sql];
+            if (!ret) {
+                perror("执行 sql 失败");
+            }
+        }
+    }
+    @catch (NSException *exception) {
+        isRollBack = YES;
+        [_database rollback];
+        NSLog(@"事务操作失败 原因：%@",exception.reason);
+    }
+    @finally {
+        if (!isRollBack) {
+            [_database commit];
+        }
+    }
+    
+    [_lock unlock];
+    
+    return !isRollBack;
+}
 
-/** 执行 SQL 语句 带返回结果的 */
+
 -(FMResultSet *)executeQuery:(NSString *)sql
 {
     return [_database executeQuery:sql];
 }
+
+
 @end

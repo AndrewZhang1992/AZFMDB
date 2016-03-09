@@ -1,6 +1,5 @@
 //
 //  AZDataManager.m
-//  AZFmdbDaoExample
 //
 //  Created by Andrew on 16/3/8.
 //  Copyright © 2016年 Andrew. All rights reserved.
@@ -74,6 +73,24 @@
 -(BOOL)insertModel:(id)model
 {
     BOOL ret= [self insertRecordWithColumns:[AZDao propertyKeyValueFromModel:model] toTable:[AZDao tableNameByModel:model]];
+    return ret;
+}
+
+/**
+ *  批量增加model
+ *
+ *  @param ary NSArray< model >
+ *
+ *  @return bool
+ */
+-(BOOL)insertModelsByTransaction:(NSArray *)ary
+{
+    NSMutableArray *dicArray=[NSMutableArray array];
+    for (id model in ary) {
+        NSDictionary *dic=[AZDao propertyKeyValueFromModel:model];
+        [dicArray addObject:dic];
+    }
+    BOOL ret=[self insertRecordByTransactionWithColumns:[dicArray copy] toTable:[AZDao tableNameByModel:[ary firstObject]]];
     return ret;
 }
 
