@@ -11,8 +11,8 @@
 #define AZFMDB_h
 
 #import "AZDataManager.h"
-#import "AZDataBaseManager.h"
 #import "AZDao.h"
+
 
 
 #endif /* AZFMDB_h */

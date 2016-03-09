@@ -66,23 +66,23 @@
                                                                                                     ]];
     
     // brief_sql
-//    [[AZDataManager shareManager] insertRecordByTransactionWithColumns:@[
-//                                                                        @{
-//                                                                            @"name":@"zja",
-//                                                                            @"sex":[NSNumber numberWithBool:YES],
-//                                                                            @"age":[NSNumber numberWithInt:29]
-//                                                                            },
-//                                                                        @{
-//                                                                            @"name":@"sds",
-//                                                                            @"sex":[NSNumber numberWithBool:NO],
-//                                                                            @"age":[NSNumber numberWithInt:19]
-//                                                                            },
-//                                                                        @{
-//                                                                            @"name":@"jj",
-//                                                                            @"sex":[NSNumber numberWithBool:NO],
-//                                                                            @"age":[NSNumber numberWithInt:39]
-//                                                                            }
-//                                                                        ] toTable:[AZDao tableNameByClassName:[AZUser class]]];
+    [[AZDataManager shareManager] insertRecordByTransactionWithColumns:@[
+                                                                        @{
+                                                                            @"name":@"zja",
+                                                                            @"sex":[NSNumber numberWithBool:YES],
+                                                                            @"age":[NSNumber numberWithInt:29]
+                                                                            },
+                                                                        @{
+                                                                            @"name":@"sds",
+                                                                            @"sex":[NSNumber numberWithBool:NO],
+                                                                            @"age":[NSNumber numberWithInt:19]
+                                                                            },
+                                                                        @{
+                                                                            @"name":@"jj",
+                                                                            @"sex":[NSNumber numberWithBool:NO],
+                                                                            @"age":[NSNumber numberWithInt:39]
+                                                                            }
+                                                                        ] toTable:[AZDao tableNameByClassName:[AZUser class]]];
     
     
 #endif

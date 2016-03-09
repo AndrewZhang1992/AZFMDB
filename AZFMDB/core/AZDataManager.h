@@ -1,6 +1,5 @@
 //
 //  AZDataManager.h
-//  AZFmdbDaoExample
 //
 //  Created by Andrew on 16/3/8.
 //  Copyright © 2016年 Andrew. All rights reserved.
@@ -9,7 +8,9 @@
 #import "AZDataBaseManager.h"
 #import "AZDao.h"
 
+// 默认db存在的路径
 #define DB_PATH_ADDR [NSString stringWithFormat:@"%@/Library/testDB.db",NSHomeDirectory()]
+
 
 @interface AZDataManager : AZDataBaseManager
 
@@ -47,23 +48,33 @@
 -(BOOL)insertModel:(id)model;
 
 /**
+ *  批量增加model
+ *
+ *  @param ary NSArray< model >
+ *
+ *  @return bool
+ */
+-(BOOL)insertModelsByTransaction:(NSArray *)ary;
+
+
+/**
  *  删除某一个model
  *
  *  @param model
  *
  *  @return
  */
--(BOOL)deleteOneModel:(id)model;
+-(BOOL)removeOneModel:(id)model;
 
 
 /**
  *  删除表下的所有该model
  *
- *  @param model
+ *  @param className class
  *
  *  @return
  */
--(BOOL)deleteAllModel:(id)model;
+-(BOOL)removeAllModel:(Class)className;
 
 /**
  *  修改某一个model
@@ -82,7 +93,7 @@
  *
  *  @return NSArray<model>
  */
--(NSArray *)selectAllModelFromTable:(Class)className;
+-(NSArray *)findAllModelFromTable:(Class)className;
 
 
 /**
@@ -93,8 +104,18 @@
  *
  *  @return NSArray<model>
  */
--(NSArray *)selectModel:(Class)className WithCondition:(NSString *)condition;
+-(NSArray *)findModel:(Class)className WithCondition:(NSString *)condition;
 
+/**
+ *  查找model 指定列名
+ *
+ *  @param className   类名
+ *  @param cloumnNames NSArray< cloumnName > 列名数组
+ *  @param condition  条件查询语句
+ *
+ *  @return NSArray<model>
+ */
+-(NSArray *)findModel:(Class)className ColumnNames:(NSArray *)cloumnNames WithCondition:(NSString *)condition;
 
 
 @end

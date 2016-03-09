@@ -1,6 +1,5 @@
 //
 //  AZDataManager.m
-//  AZFmdbDaoExample
 //
 //  Created by Andrew on 16/3/8.
 //  Copyright © 2016年 Andrew. All rights reserved.
@@ -78,13 +77,31 @@
 }
 
 /**
+ *  批量增加model
+ *
+ *  @param ary NSArray< model >
+ *
+ *  @return bool
+ */
+-(BOOL)insertModelsByTransaction:(NSArray *)ary
+{
+    NSMutableArray *dicArray=[NSMutableArray array];
+    for (id model in ary) {
+        NSDictionary *dic=[AZDao propertyKeyValueFromModel:model];
+        [dicArray addObject:dic];
+    }
+    BOOL ret=[self insertRecordByTransactionWithColumns:[dicArray copy] toTable:[AZDao tableNameByModel:[ary firstObject]]];
+    return ret;
+}
+
+/**
  *  删除某一个model
  *
  *  @param model
  *
  *  @return
  */
--(BOOL)deleteOneModel:(id)model
+-(BOOL)removeOneModel:(id)model
 {
     BOOL ret=[self removeRecordWithCondition:[AZDao conditionAllByModel:model] fromTable:[AZDao tableNameByModel:model]];
     return ret;
@@ -97,9 +114,9 @@
  *
  *  @return
  */
--(BOOL)deleteAllModel:(id)model
+-(BOOL)removeAllModel:(Class)className
 {
-    BOOL ret=[self removeRecordWithCondition:nil fromTable:[AZDao tableNameByModel:model]];
+    BOOL ret=[self removeRecordWithCondition:nil fromTable:[AZDao tableNameByClassName:className]];
     return ret;
 }
 
@@ -128,10 +145,10 @@
  *
  *  @return NSArray<model>
  */
--(NSArray *)selectAllModelFromTable:(Class)className
+-(NSArray *)findAllModelFromTable:(Class)className
 {
     //全部查询
-    return [self selectModel:className WithCondition:nil];
+    return [self findModel:className WithCondition:nil];
 }
 
 
@@ -143,9 +160,30 @@
  *
  *  @return NSArray<model>
  */
--(NSArray *)selectModel:(Class)className WithCondition:(NSString *)condition
+-(NSArray *)findModel:(Class)className WithCondition:(NSString *)condition
 {
     FMResultSet *rs=[self findColumnNames:nil recordsWithCondition:condition fromTable:[AZDao tableNameByClassName:className]];
+    NSMutableArray *array=[NSMutableArray array];
+    while (rs.next) {
+        id anyObject= [className new];
+        [anyObject setValuesForKeysWithDictionary:rs.resultDictionary];
+        [array addObject:anyObject];
+    }
+    return array;
+}
+
+/**
+ *  查找model 指定列名
+ *
+ *  @param className   类名
+ *  @param cloumnNames NSArray< cloumnName > 列名数组
+ *  @param condition  条件查询语句
+ *
+ *  @return NSArray<model>
+ */
+-(NSArray *)findModel:(Class)className ColumnNames:(NSArray *)cloumnNames WithCondition:(NSString *)condition
+{
+    FMResultSet *rs=[self findColumnNames:cloumnNames recordsWithCondition:condition fromTable:[AZDao tableNameByClassName:className]];
     NSMutableArray *array=[NSMutableArray array];
     while (rs.next) {
         id anyObject= [className new];

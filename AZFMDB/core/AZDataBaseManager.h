@@ -12,6 +12,14 @@
 
 @interface AZDataBaseManager : NSObject
 
+
+/**
+ *  初始化
+ *
+ *  @param path 指定db路径,如果不存在 则会创建该db。
+ *
+ *  @return 实例
+ */
 - (instancetype)initWithPath:(NSString *)path;
 
 /**
@@ -41,6 +49,18 @@
 - (BOOL)insertRecordWithColumns:(NSDictionary *)dict toTable:(NSString *)tableName;
 
 
+
+/**
+ *  事务操作批量插入记录
+ *
+ *  @param ary      NSArray< NSDictionary > 内部存放的一条记录的键值对
+ *  @param tableName 表名
+ *
+ *  @return bool
+ */
+-(BOOL)insertRecordByTransactionWithColumns:(NSArray *)ary toTable:(NSString *)tableName;
+
+
 /**
  *  删除记录
  *
@@ -59,6 +79,19 @@
  */
 -(BOOL)updataRecordWithColumns:(NSDictionary *)dict Condition:(NSString *)condition toTable:(NSString *)tableName;
 
+
+/**
+ *  事务操作 更新记录
+ *
+ *  @param ary      NSArray< NSDictionary >    字典，键表示需要更新的类名，值为相应列的值
+ *  @param condition 条件，必须指明条件才能更新
+ *  @param tableName 表名
+ *
+ *  @return bool
+ */
+-(BOOL)updataRecordByTransactionWithColumns:(NSArray *)ary Condition:(NSString *)condition toTable:(NSString *)tableName;
+
+
 /**
  *  查找记录
  *
@@ -71,16 +104,44 @@
 - (FMResultSet *)findColumnNames:(NSArray *)names recordsWithCondition:(NSString *)condition fromTable:(NSString *)tableName;
 
 
-/**执行  SQL 语句 不带返回结果的*/
+
+/**
+ *  执行  SQL 语句 不带返回结果的
+ *
+ *  @param sql sql
+ */
 -(void)executeUpdate:(NSString *)sql;
 
 
-/** 执行 SQL 语句 带返回结果的 */
+/**
+ *   事务操作 SQL 语句
+ *
+ *  @param sqlAry NSArray< sql >
+ */
+-(BOOL)executeUpdateByTransaction:(NSArray *)sqlAry;
+
+
+/**
+ *  执行 SQL 语句 带返回结果的
+ *
+ *  @param sql sql
+ *
+ *  @return FMResultSet 结果集
+ */
 -(FMResultSet *)executeQuery:(NSString *)sql;
 
 
-/**打开数据库*/
+/**
+ *  打开数据库
+ */
 -(void)open;
-/** 关闭数据库 */
+
+
+/**
+ *  关闭数据库
+ */
 -(void)close;
+
+
+
 @end
