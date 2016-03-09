@@ -64,17 +64,17 @@
  *
  *  @return
  */
--(BOOL)deleteOneModel:(id)model;
+-(BOOL)removeOneModel:(id)model;
 
 
 /**
  *  删除表下的所有该model
  *
- *  @param model
+ *  @param className class
  *
  *  @return
  */
--(BOOL)deleteAllModel:(id)model;
+-(BOOL)removeAllModel:(Class)className;
 
 /**
  *  修改某一个model
@@ -93,7 +93,7 @@
  *
  *  @return NSArray<model>
  */
--(NSArray *)selectAllModelFromTable:(Class)className;
+-(NSArray *)findAllModelFromTable:(Class)className;
 
 
 /**
@@ -104,8 +104,18 @@
  *
  *  @return NSArray<model>
  */
--(NSArray *)selectModel:(Class)className WithCondition:(NSString *)condition;
+-(NSArray *)findModel:(Class)className WithCondition:(NSString *)condition;
 
+/**
+ *  查找model 指定列名
+ *
+ *  @param className   类名
+ *  @param cloumnNames NSArray< cloumnName > 列名数组
+ *  @param condition  条件查询语句
+ *
+ *  @return NSArray<model>
+ */
+-(NSArray *)findModel:(Class)className ColumnNames:(NSArray *)cloumnNames WithCondition:(NSString *)condition;
 
 
 @end
