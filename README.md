@@ -60,6 +60,10 @@ AZDao 数据模型处理:
 AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的单例即可。
 
 
+//
+
+//
+
 #### 说明
 
 > 操作数据库有2种方式，一类是直接使用单一model的方式去操作数据库(以下简称：model)，另一类是使用简短的sql语句去操作数据库（以下简称：brief_sql）。
@@ -68,6 +72,10 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 > 
 > 2.brief_sql,简短的sql语句，可以让用户输入一些关键的sql语句即可完成对数据库的增删改查。
 
+
+//
+
+//
 
 
  
@@ -95,7 +103,7 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 
 ```
 
-使用时间，建议要去修改工程的制定db的路径。在 AZDataManager.h 中的 line 12 修改即可。
+正式使用时，建议要去修改工程的制定db的路径。在 AZDataManager.h 中的 line 12 修改即可。
 
 
 #####2.2 数据库打开 关闭
