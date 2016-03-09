@@ -5,14 +5,15 @@
 //  Copyright © 2016年 Andrew. All rights reserved.
 //
 
-#import "AZDataBaseManager.h"
+
+#import "AZBaseDataManager.h"
 #import "AZDao.h"
 
 // 默认db存在的路径
 #define DB_PATH_ADDR [NSString stringWithFormat:@"%@/Library/testDB.db",NSHomeDirectory()]
 
 
-@interface AZDataManager : AZDataBaseManager
+@interface AZDataManager : AZBaseDataManager
 
 /**
  *  单例对象

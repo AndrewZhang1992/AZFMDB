@@ -57,8 +57,17 @@ AZDao 数据模型处理:
 
 //
 
-
 AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的单例即可。
+
+
+#### 说明
+
+> 操作数据库有2种方式，一类是直接使用单一model的方式去操作数据库(以下简称：model)，另一类是使用简短的sql语句去操作数据库（以下简称：brief_sql）。
+> 
+> 1.model,只能使用单一模型，即模型里的成员变量不能含有其它模型的指针，且成员变量的类型必须是cocoa下的类型，不能为基础类型。
+> 
+> 2.brief_sql,简短的sql语句，可以让用户输入一些关键的sql语句即可完成对数据库的增删改查。
+
 
 
  
@@ -72,7 +81,6 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 
 ### 2.使用API
 
-有两种方式操作，一类是直接使用单一model的方式去操作数据库(以下简称：model)，另一类是使用简短的sql语句去操作数据库（以下简称：brief_sql）。
 
 ##### 2.1 创建数据库
 
@@ -177,7 +185,7 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 批量增加
 
 ```
-	    [[AZDataManager shareManager] insertRecordByTransactionWithColumns:@[
+	[[AZDataManager shareManager] insertRecordByTransactionWithColumns:@[
                                                                         @{
                                                                             @"name":@"zja",
                                                                             @"sex":[NSNumber numberWithBool:YES],
@@ -192,19 +200,95 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 
 #####2.4 删
 
+* model
+
+删除某一个记录
+
+```
+  [[AZDataManager shareManager] removeOneModel:lisi];
+
+```
+删除所有
+
+```
+  [[AZDataManager shareManager] removeAllModel:[AZUser class]];
+  
+```
 
 
+* brief_sql
 
 
+删除某一个记录
+
+```
+   [[AZDataManager shareManager] removeRecordWithCondition:@"where age='1'" fromTable:[AZDao tableNameByClassName:[AZUser class]]];
+
+```
+删除所有
+
+```
+  [[AZDataManager shareManager] removeRecordWithCondition:nil fromTable:[AZDao tableNameByClassName:[AZUser class]]];
+  
+```
 
 
+#####2.5 改
+
+* model
 
 
+```
+	  [[AZDataManager shareManager] updateOneNewModel:newZhangSan oldModel:zhangsan];
+	  
+```
 
 
+* brief_sql
 
 
+```
+	[[AZDataManager shareManager] updataRecordWithColumns:@{@"name":@"历史"} Condition:@"where age='23'" toTable:[AZDao tableNameByClassName:[AZUser class]]];
+	
+```
 
+
+#####2.6 查
+
+* model
+
+部分查询（所有列）
+
+```
+	AZUser *u=[[[AZDataManager shareManager] findModel:[AZUser class] WithCondition:@"where age='39'"] lastObject];
+	
+```
+
+部分查询 (指定列)
+
+```
+	AZUser *sm=[[[AZDataManager shareManager] findModel:[AZUser class] ColumnNames:@[@"age"] WithCondition:@"where age='39'"] lastObject];
+	
+```
+
+全部查询 
+
+```
+	NSArray *ary=[[AZDataManager shareManager] findAllModelFromTable:[AZUser class]];
+    for (AZUser *user in ary) {
+        NSLog(@"u.name=%@，u.age=%ld ，u.sex=%ld",user.name,(long)[user.age integerValue],[user.sex boolValue]);
+    }
+
+```
+
+
+* brief_sql
+
+
+```
+	[[AZDataManager shareManager] findColumnNames:@[@"name",@"age"] recordsWithCondition:@"where age='22'" fromTable:[AZDao tableNameByClassName:[AZUser class]]];
+
+```
 
 
 

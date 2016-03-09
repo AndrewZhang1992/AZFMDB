@@ -5,9 +5,9 @@
 //  Copyright (c) 2014年 AndrewZhang. All rights reserved.
 //
 
-#import "AZDataBaseManager.h"
+#import "AZBaseDataManager.h"
 
-@implementation AZDataBaseManager
+@implementation AZBaseDataManager
 {
     //数据库
     FMDatabase * _database;

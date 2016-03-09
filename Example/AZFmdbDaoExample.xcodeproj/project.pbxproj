@@ -18,7 +18,7 @@
 		B0105ECC1C8E825400EAB4E5 /* AZUser.m in Sources */ = {isa = PBXBuildFile; fileRef = B0105ECB1C8E825400EAB4E5 /* AZUser.m */; };
 		B0105EE61C8EB08D00EAB4E5 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B0105EE51C8EB08D00EAB4E5 /* libsqlite3.tbd */; };
 		B0105F071C8EE88B00EAB4E5 /* AZDao.m in Sources */ = {isa = PBXBuildFile; fileRef = B0105EF71C8EE88B00EAB4E5 /* AZDao.m */; };
-		B0105F081C8EE88B00EAB4E5 /* AZDataBaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B0105EF91C8EE88B00EAB4E5 /* AZDataBaseManager.m */; };
+		B0105F081C8EE88B00EAB4E5 /* AZBaseDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B0105EF91C8EE88B00EAB4E5 /* AZBaseDataManager.m */; };
 		B0105F091C8EE88B00EAB4E5 /* AZDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B0105EFB1C8EE88B00EAB4E5 /* AZDataManager.m */; };
 		B0105F0A1C8EE88B00EAB4E5 /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = B0105EFE1C8EE88B00EAB4E5 /* FMDatabase.m */; };
 		B0105F0B1C8EE88B00EAB4E5 /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = B0105F001C8EE88B00EAB4E5 /* FMDatabaseAdditions.m */; };
@@ -66,8 +66,8 @@
 		B0105EE51C8EB08D00EAB4E5 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		B0105EF61C8EE88B00EAB4E5 /* AZDao.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZDao.h; sourceTree = "<group>"; };
 		B0105EF71C8EE88B00EAB4E5 /* AZDao.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZDao.m; sourceTree = "<group>"; };
-		B0105EF81C8EE88B00EAB4E5 /* AZDataBaseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZDataBaseManager.h; sourceTree = "<group>"; };
-		B0105EF91C8EE88B00EAB4E5 /* AZDataBaseManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZDataBaseManager.m; sourceTree = "<group>"; };
+		B0105EF81C8EE88B00EAB4E5 /* AZBaseDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZBaseDataManager.h; sourceTree = "<group>"; };
+		B0105EF91C8EE88B00EAB4E5 /* AZBaseDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZBaseDataManager.m; sourceTree = "<group>"; };
 		B0105EFA1C8EE88B00EAB4E5 /* AZDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZDataManager.h; sourceTree = "<group>"; };
 		B0105EFB1C8EE88B00EAB4E5 /* AZDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZDataManager.m; sourceTree = "<group>"; };
 		B0105EFD1C8EE88B00EAB4E5 /* FMDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabase.h; sourceTree = "<group>"; };
@@ -197,8 +197,8 @@
 			children = (
 				B0105EF61C8EE88B00EAB4E5 /* AZDao.h */,
 				B0105EF71C8EE88B00EAB4E5 /* AZDao.m */,
-				B0105EF81C8EE88B00EAB4E5 /* AZDataBaseManager.h */,
-				B0105EF91C8EE88B00EAB4E5 /* AZDataBaseManager.m */,
+				B0105EF81C8EE88B00EAB4E5 /* AZBaseDataManager.h */,
+				B0105EF91C8EE88B00EAB4E5 /* AZBaseDataManager.m */,
 				B0105EFA1C8EE88B00EAB4E5 /* AZDataManager.h */,
 				B0105EFB1C8EE88B00EAB4E5 /* AZDataManager.m */,
 				B0105F0F1C8EE8B500EAB4E5 /* AZFMDB.h */,
@@ -355,7 +355,7 @@
 			files = (
 				B0105F091C8EE88B00EAB4E5 /* AZDataManager.m in Sources */,
 				B0105E971C8E7F5200EAB4E5 /* ViewController.m in Sources */,
-				B0105F081C8EE88B00EAB4E5 /* AZDataBaseManager.m in Sources */,
+				B0105F081C8EE88B00EAB4E5 /* AZBaseDataManager.m in Sources */,
 				B0105F071C8EE88B00EAB4E5 /* AZDao.m in Sources */,
 				B0105ECC1C8E825400EAB4E5 /* AZUser.m in Sources */,
 				B0105F0B1C8EE88B00EAB4E5 /* FMDatabaseAdditions.m in Sources */,
@@ -590,6 +590,7 @@
 				B0105EBB1C8E7F5200EAB4E5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B0105EBC1C8E7F5200EAB4E5 /* Build configuration list for PBXNativeTarget "AZFmdbDaoExampleTests" */ = {
 			isa = XCConfigurationList;
@@ -598,6 +599,7 @@
 				B0105EBE1C8E7F5200EAB4E5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B0105EBF1C8E7F5200EAB4E5 /* Build configuration list for PBXNativeTarget "AZFmdbDaoExampleUITests" */ = {
 			isa = XCConfigurationList;
@@ -606,6 +608,7 @@
 				B0105EC11C8E7F5200EAB4E5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

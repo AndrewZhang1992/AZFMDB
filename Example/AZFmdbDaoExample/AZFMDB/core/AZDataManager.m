@@ -6,7 +6,7 @@
 //
 
 #import "AZDataManager.h"
-#import "AZDataBaseManager.h"
+#import "AZBaseDataManager.h"
 
 @interface AZDataManager ()
 

@@ -10,7 +10,7 @@
 
 @class FMResultSet;
 
-@interface AZDataBaseManager : NSObject
+@interface AZBaseDataManager : NSObject
 
 
 /**
