@@ -7,6 +7,7 @@
 
 
 #import "AZDao.h"
+#import <UIKit/UIKit.h>
 
 @implementation AZDao
 
@@ -79,6 +80,7 @@
                     return sql_int;
                 }
             }
+            
             return sql_text;
         }
         if ([blobAry containsObject:className]) {
@@ -98,6 +100,9 @@
     
     return nil;
 }
+
+
+
 
 
 /**

@@ -36,6 +36,7 @@
     zhangsan.name=@"zhangsan";
     zhangsan.age=[NSNumber numberWithInt:25];
     zhangsan.sex=[NSNumber numberWithBool:YES];
+    [zhangsan.ary addObjectsFromArray:@[@"123",@"abc"]];
     
     AZUser *lisi=[AZUser new];
     lisi.name=@"lisi";
@@ -43,12 +44,16 @@
     lisi.sex=[NSNumber numberWithBool:NO];
   
     // 插入数据
-#if 0
+#if 1
     
     // 使用model方式操作
     
     // 单次插入数据
-//    [[AZDataManager shareManager] insertModel:lisi];
+    [[AZDataManager shareManager] insertModel:lisi];
+    [[AZDataManager shareManager] insertModel:lisi inTable:@"tb_user"];
+    
+    
+    [[AZDataManager shareManager] updateModel:lisi Condition:@"where id = 2"];
     
     // brief_sql
 //    [[AZDataManager shareManager] insertRecordWithColumns:@{
@@ -65,24 +70,24 @@
                                                                                                     lisi
                                                                                                     ]];
     
-    // brief_sql
-    [[AZDataManager shareManager] insertRecordByTransactionWithColumns:@[
-                                                                        @{
-                                                                            @"name":@"zja",
-                                                                            @"sex":[NSNumber numberWithBool:YES],
-                                                                            @"age":[NSNumber numberWithInt:29]
-                                                                            },
-                                                                        @{
-                                                                            @"name":@"sds",
-                                                                            @"sex":[NSNumber numberWithBool:NO],
-                                                                            @"age":[NSNumber numberWithInt:19]
-                                                                            },
-                                                                        @{
-                                                                            @"name":@"jj",
-                                                                            @"sex":[NSNumber numberWithBool:NO],
-                                                                            @"age":[NSNumber numberWithInt:39]
-                                                                            }
-                                                                        ] toTable:[AZDao tableNameByClassName:[AZUser class]]];
+//    // brief_sql
+//    [[AZDataManager shareManager] insertRecordByTransactionWithColumns:@[
+//                                                                        @{
+//                                                                            @"name":@"zja",
+//                                                                            @"sex":[NSNumber numberWithBool:YES],
+//                                                                            @"age":[NSNumber numberWithInt:29]
+//                                                                            },
+//                                                                        @{
+//                                                                            @"name":@"sds",
+//                                                                            @"sex":[NSNumber numberWithBool:NO],
+//                                                                            @"age":[NSNumber numberWithInt:19]
+//                                                                            },
+//                                                                        @{
+//                                                                            @"name":@"jj",
+//                                                                            @"sex":[NSNumber numberWithBool:NO],
+//                                                                            @"age":[NSNumber numberWithInt:39]
+//                                                                            }
+//                                                                        ] toTable:[AZDao tableNameByClassName:[AZUser class]]];
     
     
 #endif
@@ -128,15 +133,15 @@
     
 #if 1
     // 部分查询
-    AZUser *u=[[[AZDataManager shareManager] findModel:[AZUser class] WithCondition:@"where age='39'"] lastObject];
-    NSLog(@"u.name=%@",u.name);
-    
-    // 部分查询 指定列名
-    AZUser *sm=[[[AZDataManager shareManager] findModel:[AZUser class] ColumnNames:@[@"age"] WithCondition:@"where age='39'"] lastObject];
-    NSLog(@"u.age=%ld",[sm.age integerValue]);
+//    AZUser *u=[[[AZDataManager shareManager] findModel:[AZUser class] WithCondition:@"where age='39'"] lastObject];
+//    NSLog(@"u.name=%@",u.name);
+//    
+//    // 部分查询 指定列名
+//    AZUser *sm=[[[AZDataManager shareManager] findModel:[AZUser class] ColumnNames:@[@"age"] WithCondition:@"where age='39'"] lastObject];
+//    NSLog(@"u.age=%ld",[sm.age integerValue]);
   
     // 全部查询
-    NSArray *ary=[[AZDataManager shareManager] findAllModelFromTable:[AZUser class]];
+    NSArray *ary=[[AZDataManager shareManager] findAllModelWithClass:[AZUser class]];
     for (AZUser *user in ary) {
         NSLog(@"u.name=%@，u.age=%ld ，u.sex=%ld",user.name,(long)[user.age integerValue],[user.sex boolValue]);
     }

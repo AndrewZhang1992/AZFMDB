@@ -73,12 +73,30 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 > 2.brief_sql,简短的sql语句，可以让用户输入一些关键的sql语句即可完成对数据库的增删改查。
 
 
-//
-
-//
 
 
- 
+
+
+###### ----------------------------------------------------------------------------
+###### 注意事项：
+
+*  ###### user 为 AZUser的实例对象，使用model的方式创建表,表名为：tb_ClassName，如果model中含有NSNumber类型的成员变量，则在init之后建议初始化模型。否则 创建出来的NSNumber类型对应的sqllite的字段类型则为text。
+
+*  ######   model 方式 都有可以指定表名访问的API , 如果不制定 表名，完全适用 model 的方式操作数据表，那么表名则会为：tb_modelname ,如果项目一开始就使用该辅助类，那么建议不制定表名，由内部自动获取。
+
+
+*  ###### 如果model中含有 NSArray NSMutableArray NSDictionary NSMutableDictionary 那么sql 字段类型会为 text ，存入数据表中是字符串 ，返回的model 中 该类型的对应的值 是字符串，需要再次转化。
+
+###### ----------------------------------------------------------------------------
+
+
+
+
+
+<br/>
+<br/>
+<br/>
+<br/>
 ### 1.加入AZFMDB到工程中
 将AZFMDB加入你的工程，然后
 
@@ -136,7 +154,6 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 ```
 
 
-###### 说明：user 为 AZUser的实例对象，使用model的方式创建表,表名为：tb_ClassName，如果model中含有NSNumber类型的成员变量，则在init之后建议初始化模型。否则 创建出来的NSNumber类型对应的sqllite的字段类型则为text。
 
 * brief_sql
 
@@ -165,14 +182,19 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 单一增加
 
 ```
-    [[AZDataManager shareManager] insertModel:user];
-
+    
+    1: [[AZDataManager shareManager] insertModel:user];
+	
+	2: [[AZDataManager shareManager] insertModel:lisi inTable:@"tb_user"];
+	
 ```
 
 批量增加
 
 ```
-	 [[AZDataManager shareManager] insertModelsByTransaction:@[zhangsan,lisi,lisi,zhangsan]];
+	1: [[AZDataManager shareManager] insertModelsByTransaction:@[zhangsan,lisi,lisi,zhangsan]];
+	 
+	2: [[AZDataManager shareManager] insertModelsByTransaction:@[zhangsan,lisi,lisi,zhangsan] inTable:@"tb_user"];
 	 
 ```
 
@@ -213,14 +235,18 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 删除某一个记录
 
 ```
-  [[AZDataManager shareManager] removeOneModel:lisi];
+  1:[[AZDataManager shareManager] removeOneModel:lisi];
+  
+  2:[[AZDataManager shareManager] removeOneModel:lisi inTable:@"tb_user"];
+  
 
 ```
 删除所有
 
 ```
-  [[AZDataManager shareManager] removeAllModel:[AZUser class]];
+  1: [[AZDataManager shareManager] removeAllModel:[AZUser class]];
   
+  2: [[AZDataManager shareManager] removeAllModel:[AZUser class] inTable:@"tb_user"];
 ```
 
 
@@ -247,7 +273,13 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 
 
 ```
-	  [[AZDataManager shareManager] updateOneNewModel:newZhangSan oldModel:zhangsan];
+  1: [[AZDataManager shareManager] updateModel:lisi Condition:@"where id = 2"];
+  
+  2: [[AZDataManager shareManager] updateModel:lisi Condition:@"where id = 2" inTable:@"tb_user"];
+  
+  3: [[AZDataManager shareManager] updateOneNewModel:newZhangSan oldModel:zhangsan];
+  
+  4: [[AZDataManager shareManager] updateOneNewModel:newZhangSan oldModel:zhangsan inTable:@"tb_user"];
 	  
 ```
 

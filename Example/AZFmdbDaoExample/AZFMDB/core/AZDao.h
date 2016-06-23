@@ -32,6 +32,7 @@ static NSString const *sql_blob=@"blob";
 
 +(NSString *)tableNameByClassName:(Class)className;
 
+
 /**
  *  获取该模型对应的条件
  *
@@ -46,6 +47,8 @@ static NSString const *sql_blob=@"blob";
  *  获取模型的成员变量的类型在sqllite中的类型  并返回键值对（映射）
  * !!! 对像中的成员变量必须是 cocoa 下的类型 不能有基础类型
  *
+ *  支持 @"NSNumber",@"NSDictionary",@"NSMutableDictionary",@"NSArray",@"NSMutableArray"
+ 
  *  @param model model实例
  *
  *  @return NSDictionary
@@ -62,6 +65,7 @@ static NSString const *sql_blob=@"blob";
  *  @return NSDictionary
  */
 + (NSDictionary *)propertyKeyValueFromModel:(id)model;
+
 
 
 @end

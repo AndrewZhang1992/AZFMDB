@@ -22,6 +22,7 @@
     _name=@"";
     _age=[NSNumber numberWithInt:0];
     _sex=[NSNumber numberWithBool:YES];
+    _ary=[NSMutableArray array];
 }
 
 @end

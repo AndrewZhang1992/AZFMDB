@@ -72,7 +72,12 @@
  */
 -(BOOL)insertModel:(id)model
 {
-    BOOL ret= [self insertRecordWithColumns:[AZDao propertyKeyValueFromModel:model] toTable:[AZDao tableNameByModel:model]];
+    return [self insertModel:model inTable:[AZDao tableNameByModel:model]];
+}
+
+-(BOOL)insertModel:(id)model inTable:(NSString *)tableName
+{
+    BOOL ret= [self insertRecordWithColumns:[AZDao propertyKeyValueFromModel:model] toTable:tableName];
     return ret;
 }
 
@@ -85,12 +90,17 @@
  */
 -(BOOL)insertModelsByTransaction:(NSArray *)ary
 {
+   return  [self insertModelsByTransaction:ary inTable:[AZDao tableNameByModel:[ary firstObject]]];
+}
+
+-(BOOL)insertModelsByTransaction:(NSArray *)ary inTable:(NSString *)tableName
+{
     NSMutableArray *dicArray=[NSMutableArray array];
     for (id model in ary) {
         NSDictionary *dic=[AZDao propertyKeyValueFromModel:model];
         [dicArray addObject:dic];
     }
-    BOOL ret=[self insertRecordByTransactionWithColumns:[dicArray copy] toTable:[AZDao tableNameByModel:[ary firstObject]]];
+    BOOL ret=[self insertRecordByTransactionWithColumns:[dicArray copy] toTable:tableName];
     return ret;
 }
 
@@ -103,7 +113,12 @@
  */
 -(BOOL)removeOneModel:(id)model
 {
-    BOOL ret=[self removeRecordWithCondition:[AZDao conditionAllByModel:model] fromTable:[AZDao tableNameByModel:model]];
+    return [self removeOneModel:model inTable:[AZDao tableNameByModel:model]];
+}
+
+-(BOOL)removeOneModel:(id)model  inTable:(NSString *)tableName
+{
+    BOOL ret=[self removeRecordWithCondition:[AZDao conditionAllByModel:model] fromTable:tableName];
     return ret;
 }
 
@@ -116,9 +131,39 @@
  */
 -(BOOL)removeAllModel:(Class)className
 {
-    BOOL ret=[self removeRecordWithCondition:nil fromTable:[AZDao tableNameByClassName:className]];
+    return [self removeAllModel:className inTable:[AZDao tableNameByClassName:className]];
+}
+
+-(BOOL)removeAllModel:(Class)className inTable:(NSString *)tableName
+{
+    BOOL ret=[self removeRecordWithCondition:nil fromTable:tableName];
     return ret;
 }
+
+
+
+
+/**
+ *  修改某一个model
+ *
+ *  @param model
+ *  @param condition 条件
+ *
+ *  @return
+ */
+-(BOOL)updateModel:(id)newModel Condition:(NSString *)condition
+{
+    return [self updateModel:newModel Condition:condition inTable:[AZDao tableNameByModel:newModel]];
+}
+
+
+-(BOOL)updateModel:(id)newModel Condition:(NSString *)condition inTable:(NSString *)tableName
+{
+    BOOL ret=[self updataRecordWithColumns:[AZDao propertyKeyValueFromModel:newModel] Condition:condition toTable:tableName];
+    return ret;
+}
+
+
 
 /**
  *  修改model
@@ -129,14 +174,20 @@
  */
 -(BOOL)updateOneNewModel:(id)newModel oldModel:(id)oldModel
 {
+    return [self updateOneNewModel:newModel oldModel:oldModel inTable:[AZDao tableNameByModel:oldModel]];
+}
+
+-(BOOL)updateOneNewModel:(id)newModel oldModel:(id)oldModel inTable:(NSString *)tableName
+{
     if (![newModel isKindOfClass:[oldModel class]]) {
         NSLog(@"两个模型类型 不一致");
         return NO;
     }
-
-    BOOL ret=[self updataRecordWithColumns:[AZDao propertyKeyValueFromModel:newModel] Condition:[AZDao conditionAllByModel:oldModel] toTable:[AZDao tableNameByModel:oldModel]];
+    
+    BOOL ret=[self updataRecordWithColumns:[AZDao propertyKeyValueFromModel:newModel] Condition:[AZDao conditionAllByModel:oldModel] toTable:tableName];
     return ret;
 }
+
 
 /**
  *  查询 返回所有的model
@@ -145,12 +196,16 @@
  *
  *  @return NSArray<model>
  */
--(NSArray *)findAllModelFromTable:(Class)className
+-(NSArray *)findAllModelWithClass:(Class)className
 {
     //全部查询
     return [self findModel:className WithCondition:nil];
 }
 
+-(NSArray *)findAllModelWithClass:(Class)className inTable:(NSString *)tableName
+{
+    return [self findModel:className WithCondition:nil inTable:tableName];
+}
 
 /**
  *  根据sql语句查询返回该model
@@ -162,7 +217,12 @@
  */
 -(NSArray *)findModel:(Class)className WithCondition:(NSString *)condition
 {
-    FMResultSet *rs=[self findColumnNames:nil recordsWithCondition:condition fromTable:[AZDao tableNameByClassName:className]];
+    return [self findModel:className WithCondition:condition inTable:[AZDao tableNameByClassName:className]];
+}
+
+-(NSArray *)findModel:(Class)className WithCondition:(NSString *)condition inTable:(NSString *)tableName
+{
+    FMResultSet *rs=[self findColumnNames:nil recordsWithCondition:condition fromTable:tableName];
     NSMutableArray *array=[NSMutableArray array];
     while (rs.next) {
         id anyObject= [className new];
@@ -183,7 +243,12 @@
  */
 -(NSArray *)findModel:(Class)className ColumnNames:(NSArray *)cloumnNames WithCondition:(NSString *)condition
 {
-    FMResultSet *rs=[self findColumnNames:cloumnNames recordsWithCondition:condition fromTable:[AZDao tableNameByClassName:className]];
+    return [self findModel:className ColumnNames:cloumnNames WithCondition:condition inTable:[AZDao tableNameByClassName:className]];
+}
+
+-(NSArray *)findModel:(Class)className ColumnNames:(NSArray *)cloumnNames WithCondition:(NSString *)condition inTable:(NSString *)tableName
+{
+    FMResultSet *rs=[self findColumnNames:cloumnNames recordsWithCondition:condition fromTable:tableName];
     NSMutableArray *array=[NSMutableArray array];
     while (rs.next) {
         id anyObject= [className new];

@@ -18,6 +18,6 @@
 @property (nonatomic,strong)NSNumber *age;
 @property (nonatomic,strong)NSNumber *sex;
 
-
+@property (nonatomic,strong)NSMutableArray *ary;
 
 @end
