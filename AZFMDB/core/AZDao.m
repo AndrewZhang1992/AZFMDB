@@ -102,7 +102,22 @@
 }
 
 
-
+/**
+ *  是否为 对象属性
+ *
+ *  @param propertyAttibute
+ *
+ *  @return
+ */
++(BOOL)propertyAttibuteisObjectType:(const char *)propertyAttibute;
+{
+    NSString *attributeName=[NSString stringWithCString:propertyAttibute encoding:NSUTF8StringEncoding];
+    NSArray *attrAry=[attributeName componentsSeparatedByString:@","];
+    NSString *firstStr=[attrAry firstObject];
+    
+    if ([firstStr hasPrefix:@"T@"]) return YES;
+    else return NO;
+}
 
 
 /**
@@ -157,14 +172,20 @@
         
         objc_property_t prop=properties[i];
         const char *propertyName = property_getName(prop);
-        [propertyArray addObject:[NSString stringWithCString:propertyName encoding:NSUTF8StringEncoding]];
+        const char * propertyAttibute=property_getAttributes(prop);
         
-//        id value= objc_msgSend(model,NSSelectorFromString([NSString stringWithUTF8String:propertyName]));
-        id value= [model performSelector:NSSelectorFromString([NSString stringWithUTF8String:propertyName])];
-        if(value ==nil)
-            [valueArray addObject:@""];
-        else {
-            [valueArray addObject:value];
+        // 对象属性
+        if ([AZDao propertyAttibuteisObjectType:propertyAttibute])
+        {
+            [propertyArray addObject:[NSString stringWithCString:propertyName encoding:NSUTF8StringEncoding]];
+            
+            //        id value= objc_msgSend(model,NSSelectorFromString([NSString stringWithUTF8String:propertyName]));
+            
+            id value= [model performSelector:NSSelectorFromString([NSString stringWithUTF8String:propertyName])];
+            if(value ==nil)
+                [valueArray addObject:@""];
+            else
+                [valueArray addObject:value];
         }
     }
     free(properties);
