@@ -57,6 +57,19 @@ static NSString const *sql_blob=@"blob";
 
 
 /**
+ *  获取模型的成员变量的类型在sqllite中的类型  并返回键值对（映射）
+ * !!! 对像中的成员变量必须是 cocoa 下的类型 不能有基础类型
+ *
+ *  支持 @"NSNumber",@"NSDictionary",@"NSMutableDictionary",@"NSArray",@"NSMutableArray"
+ 
+ *  @param className Class
+ *
+ *  @return NSDictionary
+ */
++(NSDictionary *)propertySqlDictionaryFromClass:(Class)className;
+
+
+/**
  *  获取一个对象的 成员变量 键值对 （映射）
  * !!! 对像中的成员变量必须是 cocoa 下的类型 不能有基础类型
  *
@@ -67,5 +80,24 @@ static NSString const *sql_blob=@"blob";
 + (NSDictionary *)propertyKeyValueFromModel:(id)model;
 
 
+
+/**
+ *  获取 一个类的 属性列表
+ *
+ *  @param className 类名
+ *
+ *  @return  NSArray<NSString>
+ */
++(NSArray *)propertyListFromClass:(Class)className;
+
+
+/**
+ *  获取对应的 sql 字段类型
+ *
+ *  @param attributeName 属性propertyAttibute
+ *
+ *  @return
+ */
++(NSString const*)sqlLiteTypeFromAttributeName:(NSString *)attributeName;
 
 @end

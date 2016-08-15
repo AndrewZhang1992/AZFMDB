@@ -101,7 +101,46 @@
     return nil;
 }
 
++(NSString const*)sqlLiteTypeFromAttributeName:(NSString *)attributeName
+{
+    NSArray *attrAry=[attributeName componentsSeparatedByString:@","];
+    NSString *firstStr=[attrAry firstObject];
+    NSArray *intAry=@[@"c",@"i",@"C",@"I"];
+    NSArray *textAry=@[@"f",@"F",@"NSNumber",@"NSDictionary",@"NSMutableDictionary",@"NSArray",@"NSMutableArray",@"NSString"];
+    NSArray *blobAry=@[@"UIImage"];
+    
+    if ([firstStr hasPrefix:@"T@"]) {
+        // cocoa 下的类名
+        NSString *className=[firstStr substringWithRange:NSMakeRange(3, firstStr.length-2-2)];
+        if ([textAry containsObject:className]) {
+            
+            // NSNumber
+            return sql_text;
+        }
+        if ([blobAry containsObject:className]) {
+            return sql_blob;
+        }
+        
+    }else{
+        // 基础类型
+        // bool--Tc NSInteger--Ti CGFloat--Tf
+        if ([intAry containsObject:[firstStr substringFromIndex:1]]) {
+            return sql_int;
+        }
+        if ([textAry containsObject:[firstStr substringFromIndex:1]]){
+            return sql_text;
+        }
+    }
+    
+    return sql_text;
 
+}
+
++(NSString const*)sqlLiteTypeFrom:(const char *)strChar
+{
+    NSString *attributeName=[NSString stringWithCString:strChar encoding:NSUTF8StringEncoding];
+   return  [AZDao sqlLiteTypeFromAttributeName:attributeName];
+}
 
 
 
@@ -129,11 +168,39 @@
         
         NSString *propertyName=[NSString stringWithCString:property encoding:NSUTF8StringEncoding];
         [keyArray addObject:propertyName];
+        
+        // 更加精确体现在 @10   对应为 sql_int
         [valueArray addObject:[AZDao sqlLiteTypeFrom:propertyAttibute andModel:model]?:sql_text];
     }
     free(propertyList);
     return [NSDictionary dictionaryWithObjects:valueArray forKeys:keyArray];
 }
+
+
++(NSDictionary *)propertySqlDictionaryFromClass:(Class)className
+{
+    Class class=className;
+    u_int count;
+    
+    // 获取所有成员变量
+    objc_property_t *propertyList=class_copyPropertyList(class, &count);
+    NSMutableArray *keyArray=[NSMutableArray arrayWithCapacity:count];
+    NSMutableArray *valueArray=[NSMutableArray arrayWithCapacity:count];
+    
+    for (int i=0; i<count; i++) {
+        const char * property=property_getName(propertyList[i]);
+        const char * propertyAttibute=property_getAttributes(propertyList[i]);
+        
+        NSString *propertyName=[NSString stringWithCString:property encoding:NSUTF8StringEncoding];
+        [keyArray addObject:propertyName];
+        
+        // 扩展向上 体现在 nsnumber  全部为 sql_text
+        [valueArray addObject:[AZDao sqlLiteTypeFrom:propertyAttibute]?:sql_text];
+    }
+    free(propertyList);
+    return [NSDictionary dictionaryWithObjects:valueArray forKeys:keyArray];
+}
+
 
 
 /**
@@ -172,5 +239,21 @@
     return returnDic;
 }
 
++(NSArray *)propertyListFromClass:(Class)className
+{
+    u_int count;
+    objc_property_t *properties = class_copyPropertyList(className, &count);
+    NSMutableArray *propertyArray = [NSMutableArray arrayWithCapacity:count];
+    for (int i = 0; i < count; i++)
+    {
+        
+        objc_property_t prop=properties[i];
+        const char *propertyName = property_getName(prop);
+        [propertyArray addObject:[NSString stringWithCString:propertyName encoding:NSUTF8StringEncoding]];
+    }
+    free(properties);
+
+    return [propertyArray copy];
+}
 
 @end

@@ -34,6 +34,14 @@
 -(void)createTableModel:(id)model;
 
 /**
+ *  根据类 创建表
+ *  表名 为 tb_className
+ *  @param className Class
+ */
+-(void)createTableClassName:(Class)className;
+
+
+/**
  *   根据模型 创建表
  *   表名 为 tb_modelname
  *
@@ -41,6 +49,16 @@
  *  @param key   指定主键（该主键必须在model的成员变量中,且该类型应该为NSInteger）
  */
 -(void)createTableModel:(id)model primaryKey:(NSString *)key;
+
+/**
+ *   根据类名 创建表
+ *   表名 为 tb_className
+ *
+ *  @param className
+ *  @param key   指定主键（该主键必须在model的成员变量中,且该类型应该为NSInteger）
+ */
+-(void)createTableClassName:(Class)className primaryKey:(NSString *)key;
+
 
 /**
  *  增加model

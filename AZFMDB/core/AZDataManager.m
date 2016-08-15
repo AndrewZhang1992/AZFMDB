@@ -7,6 +7,7 @@
 
 #import "AZDataManager.h"
 #import "AZBaseDataManager.h"
+#import "AZDataMigration.h"
 
 @interface AZDataManager ()
 
@@ -40,7 +41,16 @@
 {
     NSString *tableName=[AZDao tableNameByModel:model];
     [self createTableWithName:tableName Column:[AZDao propertySqlDictionaryFromModel:model]];
+    [AZDataMigration dataMigrationClass:[model class]];
 }
+
+-(void)createTableClassName:(Class)className
+{
+    NSString *tableName=[AZDao tableNameByClassName:className];
+    [self createTableWithName:tableName Column:[AZDao propertySqlDictionaryFromClass:className]];
+    [AZDataMigration dataMigrationClass:className];
+}
+
 
 /**
  *   根据模型 创建表
@@ -61,10 +71,25 @@
         return;
     }
     NSString *tableName=[AZDao tableNameByModel:model];
-    [self createTableWithName:tableName primaryKey:key type:sql_int otherColumn:[AZDao propertySqlDictionaryFromModel:model]];
+    [self createTableWithName:tableName primaryKey:key type:sql_int otherColumn:sqlDic];
+    [AZDataMigration dataMigrationClass:[model class]];
 }
 
-
+-(void)createTableClassName:(Class)className primaryKey:(NSString *)key
+{
+    NSDictionary *sqlDic=[AZDao propertySqlDictionaryFromClass:className];
+    if (![sqlDic objectForKey:key]) {
+        NSLog(@"model中没有该主键成员变量");
+        return;
+    }
+    if (![[sqlDic objectForKey:key] isEqualToString:sql_int]) {
+        NSLog(@"model中指定主键对应sqllite类型应为integer");
+        return;
+    }
+    NSString *tableName=[AZDao tableNameByClassName:className];
+    [self createTableWithName:tableName primaryKey:key type:sql_int otherColumn:sqlDic];
+    [AZDataMigration dataMigrationClass:className];
+}
 /**
  *  增加model
  *

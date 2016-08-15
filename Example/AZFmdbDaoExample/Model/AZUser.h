@@ -20,4 +20,7 @@
 
 @property (nonatomic,strong)NSMutableArray *ary;
 
+
+@property (nonatomic,copy)NSString *phone;
+
 @end

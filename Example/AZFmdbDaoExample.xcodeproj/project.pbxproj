@@ -25,6 +25,7 @@
 		B0105F0C1C8EE88B00EAB4E5 /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = B0105F021C8EE88B00EAB4E5 /* FMDatabasePool.m */; };
 		B0105F0D1C8EE88B00EAB4E5 /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = B0105F041C8EE88B00EAB4E5 /* FMDatabaseQueue.m */; };
 		B0105F0E1C8EE88B00EAB4E5 /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = B0105F061C8EE88B00EAB4E5 /* FMResultSet.m */; };
+		B0B7AB1F1D61B3A7000EBC3A /* AZDataMigration.m in Sources */ = {isa = PBXBuildFile; fileRef = B0B7AB1E1D61B3A7000EBC3A /* AZDataMigration.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,6 +82,8 @@
 		B0105F051C8EE88B00EAB4E5 /* FMResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMResultSet.h; sourceTree = "<group>"; };
 		B0105F061C8EE88B00EAB4E5 /* FMResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMResultSet.m; sourceTree = "<group>"; };
 		B0105F0F1C8EE8B500EAB4E5 /* AZFMDB.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AZFMDB.h; sourceTree = "<group>"; };
+		B0B7AB1D1D61B3A7000EBC3A /* AZDataMigration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZDataMigration.h; sourceTree = "<group>"; };
+		B0B7AB1E1D61B3A7000EBC3A /* AZDataMigration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZDataMigration.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,6 +204,8 @@
 				B0105EF91C8EE88B00EAB4E5 /* AZBaseDataManager.m */,
 				B0105EFA1C8EE88B00EAB4E5 /* AZDataManager.h */,
 				B0105EFB1C8EE88B00EAB4E5 /* AZDataManager.m */,
+				B0B7AB1D1D61B3A7000EBC3A /* AZDataMigration.h */,
+				B0B7AB1E1D61B3A7000EBC3A /* AZDataMigration.m */,
 				B0105F0F1C8EE8B500EAB4E5 /* AZFMDB.h */,
 			);
 			path = core;
@@ -364,6 +369,7 @@
 				B0105F0C1C8EE88B00EAB4E5 /* FMDatabasePool.m in Sources */,
 				B0105F0D1C8EE88B00EAB4E5 /* FMDatabaseQueue.m in Sources */,
 				B0105E911C8E7F5200EAB4E5 /* main.m in Sources */,
+				B0B7AB1F1D61B3A7000EBC3A /* AZDataMigration.m in Sources */,
 				B0105F0A1C8EE88B00EAB4E5 /* FMDatabase.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

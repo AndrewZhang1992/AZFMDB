@@ -20,8 +20,6 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
-    AZUser *user=[AZUser new];
-    
     // 创建数据库
     [AZDataManager shareManager];
     
@@ -29,7 +27,8 @@
     [[AZDataManager shareManager] open];
     
     // 创建表
-    [[AZDataManager shareManager] createTableModel:user];
+    [[AZDataManager shareManager] createTableClassName:[AZUser class]];
+    
     
     
     AZUser *zhangsan=[AZUser new];
@@ -44,7 +43,7 @@
     lisi.sex=[NSNumber numberWithBool:NO];
   
     // 插入数据
-#if 1
+#if 0
     
     // 使用model方式操作
     
@@ -131,7 +130,7 @@
     
     // 查询
     
-#if 1
+#if 0
     // 部分查询
 //    AZUser *u=[[[AZDataManager shareManager] findModel:[AZUser class] WithCondition:@"where age='39'"] lastObject];
 //    NSLog(@"u.name=%@",u.name);
