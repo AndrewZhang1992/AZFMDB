@@ -22,11 +22,11 @@
     NSArray *propertyList = [AZDao propertyListFromClass:className];
     NSMutableArray *alertSqlArray = [NSMutableArray array];
     [[AZDataManager shareManager] open];
-    for (NSString *recondName in propertyList)
-    {
-        NSString *sql = [NSString stringWithFormat:@"select sql from sqlite_master where tbl_name = '%@' and type='table' ",tableName];
-        FMResultSet *resultSet = [[AZDataManager shareManager] executeQuery:sql];
-        if ([resultSet next]) {
+    NSString *sql = [NSString stringWithFormat:@"select sql from sqlite_master where tbl_name = '%@' and type='table' ",tableName];
+    FMResultSet *resultSet = [[AZDataManager shareManager] executeQuery:sql];
+    if ([resultSet next]) {
+        for (NSString *recondName in propertyList)
+        {
             NSString *db_sql = [resultSet stringForColumnIndex:0];
             if (![db_sql containsString:recondName]) {
                 // 不存在该字段
@@ -37,9 +37,12 @@
     }
 
     // 执行 alert add sql
-    [[AZDataManager shareManager] executeUpdateByTransaction:alertSqlArray];
+    if (alertSqlArray.count>0) {
+        [[AZDataManager shareManager] executeUpdateByTransaction:alertSqlArray];
+    }
     
     [[AZDataManager shareManager] close];
+    
 }
 
 
