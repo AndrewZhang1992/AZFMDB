@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
 /**
  *  数据迁移
  */
@@ -31,4 +32,16 @@
 +(void)dataMigrationClass:(Class)className TableName:(NSString *)tableName;
 
 
+/**
+ *  检测db中 tableName 表中 是否需要添加新字段，可设置不考虑的字段数组
+ *
+ *  @param className         Class 类名
+ *  @param tableName         表名
+ *  @param ignoreRecondNames NSArray<NSString> 不考虑的字段数组
+ */
++(void)dataMigrationClass:(Class)className TableName:(NSString *)tableName IgnoreRecondNames:(nullable NSArray *)ignoreRecondNames;
+
+
 @end
+
+NS_ASSUME_NONNULL_END
