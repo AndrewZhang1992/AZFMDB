@@ -25,6 +25,7 @@
 		B0105F0C1C8EE88B00EAB4E5 /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = B0105F021C8EE88B00EAB4E5 /* FMDatabasePool.m */; };
 		B0105F0D1C8EE88B00EAB4E5 /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = B0105F041C8EE88B00EAB4E5 /* FMDatabaseQueue.m */; };
 		B0105F0E1C8EE88B00EAB4E5 /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = B0105F061C8EE88B00EAB4E5 /* FMResultSet.m */; };
+		B03399AE1D6AC1AA00C7F261 /* 1.4.sql in Resources */ = {isa = PBXBuildFile; fileRef = B03399AD1D6AC1AA00C7F261 /* 1.4.sql */; };
 		B0B7AB1F1D61B3A7000EBC3A /* AZDataMigration.m in Sources */ = {isa = PBXBuildFile; fileRef = B0B7AB1E1D61B3A7000EBC3A /* AZDataMigration.m */; };
 /* End PBXBuildFile section */
 
@@ -82,6 +83,7 @@
 		B0105F051C8EE88B00EAB4E5 /* FMResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMResultSet.h; sourceTree = "<group>"; };
 		B0105F061C8EE88B00EAB4E5 /* FMResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMResultSet.m; sourceTree = "<group>"; };
 		B0105F0F1C8EE8B500EAB4E5 /* AZFMDB.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AZFMDB.h; sourceTree = "<group>"; };
+		B03399AD1D6AC1AA00C7F261 /* 1.4.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 1.4.sql; sourceTree = "<group>"; };
 		B0B7AB1D1D61B3A7000EBC3A /* AZDataMigration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZDataMigration.h; sourceTree = "<group>"; };
 		B0B7AB1E1D61B3A7000EBC3A /* AZDataMigration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZDataMigration.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -136,6 +138,7 @@
 		B0105E8E1C8E7F5200EAB4E5 /* AZFmdbDaoExample */ = {
 			isa = PBXGroup;
 			children = (
+				B03399AC1D6AC18C00C7F261 /* SQL */,
 				B0105EF41C8EE88B00EAB4E5 /* AZFMDB */,
 				B0105EC61C8E81DA00EAB4E5 /* Model */,
 				B0105E921C8E7F5200EAB4E5 /* AppDelegate.h */,
@@ -226,6 +229,14 @@
 				B0105F061C8EE88B00EAB4E5 /* FMResultSet.m */,
 			);
 			path = FMDB;
+			sourceTree = "<group>";
+		};
+		B03399AC1D6AC18C00C7F261 /* SQL */ = {
+			isa = PBXGroup;
+			children = (
+				B03399AD1D6AC1AA00C7F261 /* 1.4.sql */,
+			);
+			path = SQL;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -331,6 +342,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B03399AE1D6AC1AA00C7F261 /* 1.4.sql in Resources */,
 				B0105E9F1C8E7F5200EAB4E5 /* LaunchScreen.storyboard in Resources */,
 				B0105E9C1C8E7F5200EAB4E5 /* Assets.xcassets in Resources */,
 				B0105E9A1C8E7F5200EAB4E5 /* Main.storyboard in Resources */,

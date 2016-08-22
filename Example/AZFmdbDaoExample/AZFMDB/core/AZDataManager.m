@@ -27,8 +27,20 @@
     static dispatch_once_t once_DB;
     dispatch_once(&once_DB, ^{
         db=[[AZDataManager alloc] initWithPath:DB_PATH_ADDR];
+        [db createAppVersionTable];
     });
     return db;
+}
+
+-(void)createAppVersionTable
+{
+    [self open];
+    
+    [self createTableWithName:@"tb_app_version" Column:@{
+                                                         @"version":@"text",
+                                                         @"time":@"text"
+                                                         }];
+    [self close];
 }
 
 /**
@@ -41,7 +53,11 @@
 {
     NSString *tableName=[AZDao tableNameByModel:model];
     [self createTableWithName:tableName Column:[AZDao propertySqlDictionaryFromModel:model]];
+#if DEBUG
     [AZDataMigration dataMigrationClass:[model class]];
+#else
+    
+#endif
 }
 
 -(void)createTableClassName:(Class)className

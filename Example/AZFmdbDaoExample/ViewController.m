@@ -23,11 +23,24 @@
     // 创建数据库
     [AZDataManager shareManager];
     
-    // 开启数据库
-    [[AZDataManager shareManager] open];
+    // 开启数据迁移
+    // 如果项目中 没有sql 需要在版本升级的时候，执行数据迁移。那么 可以 不在项目中出现 [AZDataMigration startSQL], 不过建议开始执行该代码。
+//    
+//    [AZDataMigration startSQL];
+//    
+//
+//    // 开启数据库
+//    [[AZDataManager shareManager] open];
+    
+    NSArray *sql = @[
+                     @"alter table tb_AZUser change mail email text",
+                     @"alter table tb_AZUser drop abc"
+                     ];
+    [[AZDataManager shareManager] executeUpdateByTransaction:sql];
+    
     
     // 创建表
-    [[AZDataManager shareManager] createTableClassName:[AZUser class]];
+//    [[AZDataManager shareManager] createTableClassName:[AZUser class]];
     
     
     

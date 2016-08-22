@@ -281,32 +281,32 @@
 
 -(BOOL)executeUpdateByTransaction:(NSArray *)sqlAry
 {
-    [_lock lock];
-    
+    [_database open];
     [_database beginTransaction];
+    
     BOOL isRollBack = NO;
     @try {
-        // 预加载执行
         for (NSString *sql in sqlAry) {
-            BOOL ret=[_database executeUpdate:sql];
-            if (!ret) {
-                perror("执行 sql 失败");
+            if (sql != nil && ![sql isEqualToString:@""]){
+                BOOL ret=[_database executeUpdate:sql];
+                if (!ret) {
+                    isRollBack = YES;
+                    perror("执行 sql 失败");
+                }
             }
         }
     }
     @catch (NSException *exception) {
         isRollBack = YES;
         [_database rollback];
-        NSLog(@"事务操作失败 原因：%@",exception.reason);
+         NSLog(@"事务操作失败 原因：%@",exception.reason);
     }
     @finally {
         if (!isRollBack) {
             [_database commit];
         }
     }
-    
-    [_lock unlock];
-    
+    [_database close];
     return !isRollBack;
 }
 
