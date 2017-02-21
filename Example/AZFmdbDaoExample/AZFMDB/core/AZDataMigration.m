@@ -175,12 +175,24 @@
     NSString *sql = [NSString stringWithFormat:@"select sql from sqlite_master where tbl_name = '%@' and type='table' ",tableName];
     FMResultSet *resultSet = [[AZDataManager shareManager] executeQuery:sql];
     bool flag = [resultSet next];
-    NSString *db_sql  =  [resultSet stringForColumnIndex:0];
+    // NSString *db_sql  =  [resultSet stringForColumnIndex:0]; // 表结构
     [resultSet close];
     if (flag) {
+        // 存在数据表
+        
+        // 获取表所有字段
+        NSString *sql_recond = [NSString stringWithFormat:@"PRAGMA table_info('%@')",tableName];
+        FMResultSet *sql_recond_resultSet = [[AZDataManager shareManager] executeQuery:sql_recond];
+        NSMutableArray *db_reconds = [NSMutableArray array];
+        while ([sql_recond_resultSet next]) {
+            NSString *recond_name = [sql_recond_resultSet stringForColumn:@"name"];
+            [db_reconds addObject:recond_name];
+        }
+        [sql_recond_resultSet close];
+
         for (NSString *recondName in propertyList)
         {
-            if (![db_sql containsString:recondName]) {
+            if (![db_reconds containsObject:recondName]) {
                 // 不存在该字段
                 NSString *alertAddSql = [NSString stringWithFormat:@"alter table %@ add %@ %@",tableName,recondName,[AZDao sqlLiteTypeFromAttributeName:recondName]];
                 [alertSqlArray addObject:alertAddSql];

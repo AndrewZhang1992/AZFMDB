@@ -306,6 +306,7 @@
 				TargetAttributes = {
 					B0105E8B1C8E7F5200EAB4E5 = {
 						CreatedOnToolsVersion = 7.2;
+						ProvisioningStyle = Manual;
 					};
 					B0105EA41C8E7F5200EAB4E5 = {
 						CreatedOnToolsVersion = 7.2;
@@ -521,8 +522,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = NO;
 				INFOPLIST_FILE = AZFmdbDaoExample/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.ctquan.AZFmdbDaoExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -533,8 +537,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = NO;
 				INFOPLIST_FILE = AZFmdbDaoExample/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.ctquan.AZFmdbDaoExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";

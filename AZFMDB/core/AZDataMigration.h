@@ -9,12 +9,19 @@
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
 /**
  *  数据迁移
  */
 @interface AZDataMigration : NSObject
 
+#pragma mark - 对外接口
+/**
+ *  开始数据迁移，执行sql 语句
+ */
++(void)startSQL;
 
+#pragma mark - 以下api 在 其他工程中，不使用AZDataManager 创建的表时，可以使用
 /**
  *  检测db中 tb_className 表中 是否需要添加新字段
  *
