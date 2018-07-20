@@ -10,6 +10,8 @@
 
 @class FMResultSet;
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface AZBaseDataManager : NSObject
 
 
@@ -67,7 +69,7 @@
  *  @param condition 删除条件，没有则输入nil
  *  @param tableName 表名
  */
-- (BOOL)removeRecordWithCondition:(NSString *)condition fromTable:(NSString *)tableName;
+- (BOOL)removeRecordWithCondition:(nullable NSString *)condition fromTable:(NSString *)tableName;
 
 
 /**
@@ -101,7 +103,7 @@
  *
  *  @return 结果集
  */
-- (FMResultSet *)findColumnNames:(NSArray *)names recordsWithCondition:(NSString *)condition fromTable:(NSString *)tableName;
+- (FMResultSet *)findColumnNames:(nullable NSArray *)names recordsWithCondition:(nullable NSString *)condition fromTable:(NSString *)tableName;
 
 
 
@@ -143,5 +145,6 @@
 -(void)close;
 
 
-
 @end
+
+NS_ASSUME_NONNULL_END

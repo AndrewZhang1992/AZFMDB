@@ -8,21 +8,18 @@
 
 #import "AZDataMigration.h"
 #import "AZDao.h"
-#import "AZDataManager.h"
 
 @implementation AZDataMigration
 
-+(void)startSQL
++(void)startSQLWithDataManager:(AZDataManager *)dataManager
 {
     // 创建版本号 默认为当前版本
-    if (![AZDataMigration CheckVersion]) {
+    if (![AZDataMigration checkVersionWithDataManager:dataManager]) {
         
         // 搜寻 sql
-        NSArray *sqlArray = [AZDataMigration SearchBundleSQL];
+        NSArray *sqlArray = [AZDataMigration searchBundleSQLWithDataManager:dataManager];
         if (sqlArray.count>0) {
-            [[AZDataManager shareManager] open];
-           BOOL flag = [[AZDataManager shareManager] executeUpdateByTransaction:sqlArray];
-            [[AZDataManager shareManager] close];
+           BOOL flag = [dataManager executeUpdateByTransaction:sqlArray];
             if (!flag) {
                 NSLog(@"执行sql数据迁移失败");
             }else{
@@ -30,11 +27,11 @@
             }
         }
         
-        [AZDataMigration WirteCurrentVersionToDB];
+        [AZDataMigration wirteCurrentVersionToDBWithDataManager:dataManager];
     }
 }
 
-+(NSArray *)SearchBundleSQL
++(NSArray *)searchBundleSQLWithDataManager:(AZDataManager *)dataManager
 {
     NSMutableArray* sqlArray = [NSMutableArray array];
     NSMutableArray *fileArray = [NSMutableArray array];
@@ -43,7 +40,7 @@
     for (NSString *sqlPath in sqlPaths)
     {
         NSInteger sqlVersion=[AZDataMigration getIntegerFromString:[[sqlPath componentsSeparatedByString:@"/"] lastObject]];
-        NSInteger benginVersionInteger=[AZDataMigration getIntegerFromString:[AZDataMigration getMaxVersionFromDB]];
+        NSInteger benginVersionInteger=[AZDataMigration getIntegerFromString:[AZDataMigration getMaxVersionFromDBWithDataManager:dataManager]];
         NSString *current_version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
         if (benginVersionInteger<sqlVersion && sqlVersion<=[AZDataMigration getIntegerFromString:current_version])
         {
@@ -76,27 +73,21 @@
     return sqlArray;
 }
 
-+(void)WirteCurrentVersionToDB
++(void)wirteCurrentVersionToDBWithDataManager:(AZDataManager *)dataManager
 {
     NSString *current_version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
     NSTimeInterval time = [NSDate timeIntervalSinceReferenceDate];
-    [[AZDataManager shareManager] open];
-    [[AZDataManager shareManager] insertRecordWithColumns:@{
-                                                            @"version":current_version,
-                                                            @"time":[NSString stringWithFormat:@"%f",time]
-                                                            } toTable:@"tb_app_version"];
-    [[AZDataManager shareManager] close];
+    [dataManager insertRecordWithColumns:@{
+                                           @"version":current_version,
+                                           @"time":[NSString stringWithFormat:@"%f",time]
+                                           }
+                                 toTable:@"tb_app_version"];
 }
 
-/**
- *  检测当前版本和 db 中最大的版本号 是否一致
- *
- *  @return
- */
-+(BOOL)CheckVersion
++(BOOL)checkVersionWithDataManager:(AZDataManager *)dataManager
 {
     BOOL flag = NO;
-    NSString *max_version = [AZDataMigration getMaxVersionFromDB];
+    NSString *max_version = [AZDataMigration getMaxVersionFromDBWithDataManager:dataManager];
     NSString *current_version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
     if ([AZDataMigration getIntegerFromString:max_version]>=[AZDataMigration getIntegerFromString:current_version]) {
         flag=YES;
@@ -105,18 +96,15 @@
 }
 
 
-+(NSString *)getMaxVersionFromDB
++(NSString *)getMaxVersionFromDBWithDataManager:(AZDataManager *)dataManager
 {
     NSString *maxVersion=@"0";
-    [[AZDataManager shareManager] open];
-    
-    FMResultSet *rs = [[AZDataManager shareManager] executeQuery:@"SELECT time,max(version) as version FROM tb_app_version"];
+    FMResultSet *rs = [dataManager executeQuery:@"SELECT time,max(version) as version FROM tb_app_version"];
     if ([rs next]) {
         NSString *version = [rs stringForColumn:@"version"];
         maxVersion = version?:@"0";
     }
     [rs close];
-    [[AZDataManager shareManager] close];
     return maxVersion;
 }
 
@@ -149,20 +137,20 @@
 }
 
 
-+(void)dataMigrationClass:(Class)className
++(void)dataMigrationClass:(Class)className DataManager:(AZDataManager *)dataManager
 {
-    [AZDataMigration dataMigrationClass:className TableName:[AZDao tableNameByClassName:className]];
+    [AZDataMigration dataMigrationClass:className TableName:[AZDao tableNameByClassName:className] DataManager:dataManager];
 }
 
-+(void)dataMigrationClass:(Class)className TableName:(NSString *)tableName
++(void)dataMigrationClass:(Class)className TableName:(NSString *)tableName DataManager:(AZDataManager *)dataManager
 {
-    [AZDataMigration dataMigrationClass:className TableName:tableName IgnoreRecondNames:nil];
+    [AZDataMigration dataMigrationClass:className TableName:tableName IgnoreRecondNames:nil DataManager:dataManager];
 }
 
 
-+(void)dataMigrationClass:(Class)className TableName:(NSString *)tableName IgnoreRecondNames:(nullable NSArray *)ignoreRecondNames
++(void)dataMigrationClass:(Class)className TableName:(NSString *)tableName IgnoreRecondNames:(nullable NSArray *)ignoreRecondNames DataManager:(AZDataManager *)dataManager
 {
-    NSArray *propertyList = [AZDao propertyListFromClass:className];
+    NSArray *propertyList = [AZDao propertyListFromClass:className].allKeys;
     
     if (ignoreRecondNames.count>0) {
         NSMutableArray *tempPropertyList = [propertyList mutableCopy];
@@ -171,18 +159,16 @@
     }
     
     NSMutableArray *alertSqlArray = [NSMutableArray array];
-    [[AZDataManager shareManager] open];
     NSString *sql = [NSString stringWithFormat:@"select sql from sqlite_master where tbl_name = '%@' and type='table' ",tableName];
-    FMResultSet *resultSet = [[AZDataManager shareManager] executeQuery:sql];
+    FMResultSet *resultSet = [dataManager executeQuery:sql];
     bool flag = [resultSet next];
     // NSString *db_sql  =  [resultSet stringForColumnIndex:0]; // 表结构
     [resultSet close];
     if (flag) {
         // 存在数据表
-        
         // 获取表所有字段
         NSString *sql_recond = [NSString stringWithFormat:@"PRAGMA table_info('%@')",tableName];
-        FMResultSet *sql_recond_resultSet = [[AZDataManager shareManager] executeQuery:sql_recond];
+        FMResultSet *sql_recond_resultSet = [dataManager executeQuery:sql_recond];
         NSMutableArray *db_reconds = [NSMutableArray array];
         while ([sql_recond_resultSet next]) {
             NSString *recond_name = [sql_recond_resultSet stringForColumn:@"name"];
@@ -199,13 +185,10 @@
             }
         }
     }
-    
     // 执行 alert add sql
     if (alertSqlArray.count>0) {
-        [[AZDataManager shareManager] executeUpdateByTransaction:alertSqlArray];
+        [dataManager executeUpdateByTransaction:alertSqlArray];
     }
-    
-    [[AZDataManager shareManager] close];
 }
 
 

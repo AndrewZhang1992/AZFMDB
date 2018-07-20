@@ -11,10 +11,9 @@
 #import <objc/runtime.h>
 #import <objc/message.h>
 
-static NSString const *sql_int=@"integer";
-static NSString const *sql_text=@"text";
-static NSString const *sql_blob=@"blob";
-
+extern NSString * const sql_int;
+extern NSString * const sql_text;
+extern NSString * const sql_blob;
 
 /**
  *  数据处理层
@@ -28,9 +27,9 @@ static NSString const *sql_blob=@"blob";
  *
  *  @return 表名
  */
-+(NSString *)tableNameByModel:(id)model;
++ (NSString *)tableNameByModel:(id)model;
 
-+(NSString *)tableNameByClassName:(Class)className;
++ (NSString *)tableNameByClassName:(Class)className;
 
 
 /**
@@ -40,28 +39,26 @@ static NSString const *sql_blob=@"blob";
  *
  *  @return where='xxxx' and where=' sss'
  */
-+(NSString *)conditionAllByModel:(id)model;
++ (NSString *)conditionAllByModel:(id)model;
 
 
 /**
  *  获取模型的成员变量的类型在sqllite中的类型  并返回键值对（映射）
- * !!! 对像中的成员变量必须是 cocoa 下的类型 不能有基础类型
  *
- *  支持 @"NSNumber",@"NSDictionary",@"NSMutableDictionary",@"NSArray",@"NSMutableArray"
- 
+ *  支持 bool, int, float, NSInteger, NSUInteger, CGFloat, NSTimeInterval,  @"NSNumber",@"NSDictionary",@"NSMutableDictionary",@"NSArray",@"NSMutableArray"
+ *
  *  @param model model实例
  *
  *  @return NSDictionary
  */
-+(NSDictionary *)propertySqlDictionaryFromModel:(id)model;
++ (NSDictionary *)propertySqlDictionaryFromModel:(id)model;
 
 
 /**
  *  获取模型的成员变量的类型在sqllite中的类型  并返回键值对（映射）
- * !!! 对像中的成员变量必须是 cocoa 下的类型 不能有基础类型
  *
- *  支持 @"NSNumber",@"NSDictionary",@"NSMutableDictionary",@"NSArray",@"NSMutableArray"
- 
+ *  支持 bool, int, float, NSInteger, NSUInteger, CGFloat, NSTimeInterval,  @"NSNumber",@"NSDictionary",@"NSMutableDictionary",@"NSArray",@"NSMutableArray"
+ *
  *  @param className Class
  *
  *  @return NSDictionary
@@ -81,14 +78,16 @@ static NSString const *sql_blob=@"blob";
 
 
 
+    
 /**
  *  获取 一个类的 属性列表
  *
  *  @param className 类名
  *
- *  @return  NSArray<NSString>
+ *  @return  NSDictionary @{属性名称:属性类型}
+ *  eg. {@"cid":@"Ti",@"name":@"T@\NSString\",@"ary":@"T@\NSArray\"}
  */
-+(NSArray *)propertyListFromClass:(Class)className;
++ (NSDictionary *)propertyListFromClass:(Class)className;
 
 
 /**

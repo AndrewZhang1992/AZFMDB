@@ -19,19 +19,19 @@ AZDao 数据模型处理:
 
 ```
 /**
- *  获取模型的成员变量的类型在sqllite中的类型  并返回键值对（映射）
- * !!! 对像中的成员变量必须是 cocoa 下的类型 不能有基础类型
- *
- *  @param model model实例
- *
- *  @return NSDictionary
- */
+*  获取模型的成员变量的类型在sqllite中的类型  并返回键值对（映射）
+*
+*  支持 bool, int, float, NSInteger, NSUInteger, CGFloat, NSTimeInterval,  @"NSNumber",@"NSDictionary",@"NSMutableDictionary",@"NSArray",@"NSMutableArray"
+*
+*  @param model model实例
+*
+*  @return NSDictionary
+*/
 +(NSDictionary *)propertySqlDictionaryFromModel:(id)model;
 
 
 /**
  *  获取一个对象的 成员变量 键值对 （映射）
- * !!! 对像中的成员变量必须是 cocoa 下的类型 不能有基础类型
  *
  *  @param model model实例
  *
@@ -50,14 +50,12 @@ AZDao 数据模型处理:
 
 可以在任何其他的地方，需要将model转为NSDictionary的地方使用（映射）。
 
-###### !!! 注意：model中的成员变量必须是 cocoa 下的类型 ,不能使用基础类型,也不能使用自定义类型。例如：NSInteger CGFloat bool 等 都必须使用 NSNumber 包装一下。
-
 
 //
 
 //
 
-AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的单例即可。
+AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 即可。
 
 
 //
@@ -75,8 +73,6 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 
 
 
-
-
 ###### ----------------------------------------------------------------------------
 ###### 注意事项：
 
@@ -85,7 +81,11 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 *  ######   model 方式 都有可以指定表名访问的API , 如果不制定 表名，完全适用 model 的方式操作数据表，那么表名则会为：tb_modelname ,如果项目一开始就使用该辅助类，那么建议不制定表名，由内部自动获取。
 
 
-*  ###### 如果model中含有 NSArray NSMutableArray NSDictionary NSMutableDictionary 那么sql 字段类型会为 text ，存入数据表中是字符串 ，返回的model 中 该类型的对应的值 是字符串，需要再次转化。
+*  ###### 如果model中含有 NSArray NSMutableArray NSDictionary NSMutableDictionary 那么sql 字段类型会为 text ，存入数据表中是JSON字符串, 取出时会自动转化成相应的对象。
+
+
+*  ###### 多线程操作db，则可以每一个线程中单独一个AZDataManager实例，或者使用FMDatabaseQueue（不可以嵌套quene）
+
 
 ###### ----------------------------------------------------------------------------
 
@@ -111,9 +111,9 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 ##### 2.1 创建数据库
 
 ```
-[AZDataManager shareManager];
+self.dbManager = [[AZDataManager alloc] initWithPath:DB_PATH_ADDR];
 ```
-指定项目数据库路径为：
+默认数据库路径为：
 
 ```
 // 默认db存在的路径
@@ -121,15 +121,12 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 
 ```
 
-正式使用时，建议要去修改工程的制定db的路径。在 AZDataManager.h 中的 line 12 修改即可。
-
-
 #####2.2 数据库打开 关闭
 
 ```
- [[AZDataManager shareManager] open];
+ [self.dbManager open];
  
- [[AZDataManager shareManager] close];
+ [self.dbManager close];
 ```
 
 #####2.3 创建表
@@ -140,7 +137,7 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 
 ```
  // 创建表
- [[AZDataManager shareManager] createTableModel:user];
+ [self.dbManager createTableModel:user];
 	
 ```
 
@@ -149,7 +146,7 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 
 ```
  // 创建带有主键的表
- [[AZDataManager shareManager] createTableModel:user primaryKey:@"uid"];
+ [self.dbManager createTableModel:user primaryKey:@"uid"];
 	
 ```
 
@@ -161,7 +158,7 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 
 ```
 
- [[AZDataManager shareManager] createTableWithName:tableName Column:@{@"uid":@"integer",@"name":@"text",@"age":@"integer"}];
+ [self.dbManager createTableWithName:tableName Column:@{@"uid":@"integer",@"name":@"text",@"age":@"integer"}];
  
 ```
 
@@ -170,7 +167,7 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 ```
 //主键类型的值为：为“integer” 或则 “INTEGER” ，主键为自增
 
- [[AZDataManager shareManager] createTableWithName:@"user" primaryKey:@"uid" type:@"integer" otherColumn:@{@"name":@"text",@"age":@"integer"}];
+ [self.dbManager createTableWithName:@"user" primaryKey:@"uid" type:@"integer" otherColumn:@{@"name":@"text",@"age":@"integer"}];
     
 ```
 
@@ -183,18 +180,18 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 
 ```
     
-    1: [[AZDataManager shareManager] insertModel:user];
+    1: [self.dbManager insertModel:user];
 	
-	2: [[AZDataManager shareManager] insertModel:lisi inTable:@"tb_user"];
+	2: [self.dbManager insertModel:lisi inTable:@"tb_user"];
 	
 ```
 
 批量增加
 
 ```
-	1: [[AZDataManager shareManager] insertModelsByTransaction:@[zhangsan,lisi,lisi,zhangsan]];
+	1: [self.dbManager insertModelsByTransaction:@[zhangsan,lisi,lisi,zhangsan]];
 	 
-	2: [[AZDataManager shareManager] insertModelsByTransaction:@[zhangsan,lisi,lisi,zhangsan] inTable:@"tb_user"];
+	2: [self.dbManager insertModelsByTransaction:@[zhangsan,lisi,lisi,zhangsan] inTable:@"tb_user"];
 	 
 ```
 
@@ -204,7 +201,7 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 单一增加
 
 ```
-   [[AZDataManager shareManager] insertRecordWithColumns:@{
+   [self.dbManager insertRecordWithColumns:@{
                                                           @"name":@"zja",
                                                            @"sex":[NSNumber numberWithBool:YES],
                                                            @"age":[NSNumber numberWithInt:29]
@@ -215,7 +212,7 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 批量增加
 
 ```
-	[[AZDataManager shareManager] insertRecordByTransactionWithColumns:@[
+	[self.dbManager insertRecordByTransactionWithColumns:@[
                                                                         @{
                                                                             @"name":@"zja",
                                                                             @"sex":[NSNumber numberWithBool:YES],
@@ -235,18 +232,18 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 删除某一个记录
 
 ```
-  1:[[AZDataManager shareManager] removeOneModel:lisi];
+  1:[self.dbManager removeOneModel:lisi];
   
-  2:[[AZDataManager shareManager] removeOneModel:lisi inTable:@"tb_user"];
+  2:[self.dbManager removeOneModel:lisi inTable:@"tb_user"];
   
 
 ```
 删除所有
 
 ```
-  1: [[AZDataManager shareManager] removeAllModel:[AZUser class]];
+  1: [self.dbManager removeAllModel:[AZUser class]];
   
-  2: [[AZDataManager shareManager] removeAllModel:[AZUser class] inTable:@"tb_user"];
+  2: [self.dbManager removeAllModel:[AZUser class] inTable:@"tb_user"];
 ```
 
 
@@ -256,13 +253,13 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 删除某一个记录
 
 ```
-   [[AZDataManager shareManager] removeRecordWithCondition:@"where age='1'" fromTable:[AZDao tableNameByClassName:[AZUser class]]];
+   [self.dbManager removeRecordWithCondition:@"where age='1'" fromTable:[AZDao tableNameByClassName:[AZUser class]]];
 
 ```
 删除所有
 
 ```
-  [[AZDataManager shareManager] removeRecordWithCondition:nil fromTable:[AZDao tableNameByClassName:[AZUser class]]];
+  [self.dbManager removeRecordWithCondition:nil fromTable:[AZDao tableNameByClassName:[AZUser class]]];
   
 ```
 
@@ -273,13 +270,13 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 
 
 ```
-  1: [[AZDataManager shareManager] updateModel:lisi Condition:@"where id = 2"];
+  1: [self.dbManager updateModel:lisi Condition:@"where id = 2"];
   
-  2: [[AZDataManager shareManager] updateModel:lisi Condition:@"where id = 2" inTable:@"tb_user"];
+  2: [self.dbManager updateModel:lisi Condition:@"where id = 2" inTable:@"tb_user"];
   
-  3: [[AZDataManager shareManager] updateOneNewModel:newZhangSan oldModel:zhangsan];
+  3: [self.dbManager updateOneNewModel:newZhangSan oldModel:zhangsan];
   
-  4: [[AZDataManager shareManager] updateOneNewModel:newZhangSan oldModel:zhangsan inTable:@"tb_user"];
+  4: [self.dbManager updateOneNewModel:newZhangSan oldModel:zhangsan inTable:@"tb_user"];
 	  
 ```
 
@@ -288,7 +285,7 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 
 
 ```
-	[[AZDataManager shareManager] updataRecordWithColumns:@{@"name":@"历史"} Condition:@"where age='23'" toTable:[AZDao tableNameByClassName:[AZUser class]]];
+	[self.dbManager updataRecordWithColumns:@{@"name":@"历史"} Condition:@"where age='23'" toTable:[AZDao tableNameByClassName:[AZUser class]]];
 	
 ```
 
@@ -300,21 +297,21 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 部分查询（所有列）
 
 ```
-	AZUser *u=[[[AZDataManager shareManager] findModel:[AZUser class] WithCondition:@"where age='39'"] lastObject];
+	AZUser *u=[[self.dbManager findModel:[AZUser class] WithCondition:@"where age='39'"] lastObject];
 	
 ```
 
 部分查询 (指定列)
 
 ```
-	AZUser *sm=[[[AZDataManager shareManager] findModel:[AZUser class] ColumnNames:@[@"age"] WithCondition:@"where age='39'"] lastObject];
+	AZUser *sm=[[self.dbManager findModel:[AZUser class] ColumnNames:@[@"age"] WithCondition:@"where age='39'"] lastObject];
 	
 ```
 
 全部查询 
 
 ```
-	NSArray *ary=[[AZDataManager shareManager] findAllModelFromTable:[AZUser class]];
+	NSArray *ary=[self.dbManager findAllModelFromTable:[AZUser class]];
     for (AZUser *user in ary) {
         NSLog(@"u.name=%@，u.age=%ld ，u.sex=%ld",user.name,(long)[user.age integerValue],[user.sex boolValue]);
     }
@@ -326,7 +323,7 @@ AZDataManager 继承自 AZDataBaseManager，外部直接使用 AZDataManager 的
 
 
 ```
-	[[AZDataManager shareManager] findColumnNames:@[@"name",@"age"] recordsWithCondition:@"where age='22'" fromTable:[AZDao tableNameByClassName:[AZUser class]]];
+	[self.dbManager findColumnNames:@[@"name",@"age"] recordsWithCondition:@"where age='22'" fromTable:[AZDao tableNameByClassName:[AZUser class]]];
 
 ```
 

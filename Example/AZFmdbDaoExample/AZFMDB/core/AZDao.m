@@ -9,6 +9,15 @@
 #import "AZDao.h"
 #import <UIKit/UIKit.h>
 
+#define intAry [AZDao intTypeArray]
+#define textAry [AZDao textTypeArray]
+#define blobAry [AZDao blobTypeArray]
+
+
+NSString * const sql_int=@"integer";
+NSString * const sql_text=@"text";
+NSString * const sql_blob=@"blob";
+
 @implementation AZDao
 
 /**
@@ -62,38 +71,34 @@
 {
     NSString *attributeName=[NSString stringWithCString:strChar encoding:NSUTF8StringEncoding];
     NSArray *attrAry=[attributeName componentsSeparatedByString:@","];
-    NSString *firstStr=[attrAry firstObject];
-    NSArray *intAry=@[@"c",@"i",@"C",@"I"];
-    NSArray *textAry=@[@"f",@"F",@"NSNumber",@"NSDictionary",@"NSMutableDictionary",@"NSArray",@"NSMutableArray",@"NSString"];
-    NSArray *blobAry=@[@"UIImage"];
-    
-    if ([firstStr hasPrefix:@"T@"]) {
+    NSString *typeStr = [self propertyTypeFromAttributeName:attributeName];
+    if ([typeStr hasPrefix:@"T@"]) {
         // cocoa 下的类名
-        NSString *className=[firstStr substringWithRange:NSMakeRange(3, firstStr.length-2-2)];
+        NSString *className=[typeStr substringWithRange:NSMakeRange(3, typeStr.length-2-2)];
         if ([textAry containsObject:className]) {
-            
             // NSNumber
             if ([className isEqualToString:@"NSNumber"]) {
                 NSString *lastStr=[[[attrAry lastObject] componentsSeparatedByString:@"V_"] lastObject];
+                _Pragma("clang diagnostic push")
+                _Pragma("clang diagnostic ignored \"-Warc-performSelector-leaks\"")
                 NSNumber *number=[model performSelector:NSSelectorFromString(lastStr)]?:[NSNumber numberWithFloat:0.0];
+                _Pragma("clang diagnostic pop")
                 if ([intAry containsObject:[NSString stringWithCString:[number objCType] encoding:NSUTF8StringEncoding]]) {
                     return sql_int;
                 }
             }
-            
             return sql_text;
         }
         if ([blobAry containsObject:className]) {
             return sql_blob;
         }
-        
     }else{
         // 基础类型
         // bool--Tc NSInteger--Ti CGFloat--Tf
-        if ([intAry containsObject:[firstStr substringFromIndex:1]]) {
+        if ([intAry containsObject:[typeStr substringFromIndex:1]]) {
             return sql_int;
         }
-        if ([textAry containsObject:[firstStr substringFromIndex:1]]){
+        if ([textAry containsObject:[typeStr substringFromIndex:1]]){
             return sql_text;
         }
     }
@@ -103,55 +108,30 @@
 
 +(NSString const*)sqlLiteTypeFromAttributeName:(NSString *)attributeName
 {
-    NSArray *attrAry=[attributeName componentsSeparatedByString:@","];
-    NSString *firstStr=[attrAry firstObject];
-    NSArray *intAry=@[@"c",@"i",@"C",@"I"];
-    NSArray *textAry=@[@"f",@"F",@"NSNumber",@"NSDictionary",@"NSMutableDictionary",@"NSArray",@"NSMutableArray",@"NSString"];
-    NSArray *blobAry=@[@"UIImage"];
-    
-    if ([firstStr hasPrefix:@"T@"]) {
+    NSString *typeStr = [self propertyTypeFromAttributeName:attributeName];
+    if ([typeStr hasPrefix:@"T@"]) {
         // cocoa 下的类名
-        NSString *className=[firstStr substringWithRange:NSMakeRange(3, firstStr.length-2-2)];
+        NSString *className=[typeStr substringWithRange:NSMakeRange(3, typeStr.length-2-2)];
         if ([textAry containsObject:className]) {
-            
             // NSNumber
             return sql_text;
         }
         if ([blobAry containsObject:className]) {
             return sql_blob;
         }
-        
-    }else{
+    } else {
         // 基础类型
-        // bool--Tc NSInteger--Ti CGFloat--Tf
-        if ([intAry containsObject:[firstStr substringFromIndex:1]]) {
+        // bool--Tc NSInteger--Tq NSUInteger--TQ CGFloat--Td int --Ti float --Tf
+        if ([intAry containsObject:[typeStr substringFromIndex:1]]) {
             return sql_int;
         }
-        if ([textAry containsObject:[firstStr substringFromIndex:1]]){
+        if ([textAry containsObject:[typeStr substringFromIndex:1]]){
             return sql_text;
         }
     }
-    
     return sql_text;
-
 }
 
-+(NSString const*)sqlLiteTypeFrom:(const char *)strChar
-{
-    NSString *attributeName=[NSString stringWithCString:strChar encoding:NSUTF8StringEncoding];
-   return  [AZDao sqlLiteTypeFromAttributeName:attributeName];
-}
-
-
-
-/**
- *  获取模型的成员变量的类型在sqllite中的类型  并返回键值对（映射）
- *
- *  @param model model实例
- *  实例中含有NSNumber 但是未附初始值，将默认返回 text 类型，建议模型初始化必须有初始值
- *
- *  @return NSDictionary
- */
 +(NSDictionary *)propertySqlDictionaryFromModel:(id)model
 {
     Class class=[model class];
@@ -175,7 +155,6 @@
     free(propertyList);
     return [NSDictionary dictionaryWithObjects:valueArray forKeys:keyArray];
 }
-
 
 +(NSDictionary *)propertySqlDictionaryFromClass:(Class)className
 {
@@ -202,15 +181,6 @@
 }
 
 
-
-/**
- *  获取一个对象的 成员变量 键值对 （映射）
- * !!! 对像中的成员变量必须是 cocoa 下的类型 不能有基础类型
- *
- *  @param model model实例
- *
- *  @return NSDictionary
- */
 + (NSDictionary *)propertyKeyValueFromModel:(id)model
 {
     Class clazz = [model class];
@@ -221,17 +191,74 @@
     NSMutableArray *valueArray = [NSMutableArray arrayWithCapacity:count];
     for (int i = 0; i < count; i++)
     {
-        
         objc_property_t prop=properties[i];
         const char *propertyName = property_getName(prop);
+        SEL selector = NSSelectorFromString([NSString stringWithUTF8String:propertyName]);
+        NSMethodSignature* methodSig = [model methodSignatureForSelector:selector];
+        if(methodSig == nil) {
+            continue;
+        }
         [propertyArray addObject:[NSString stringWithCString:propertyName encoding:NSUTF8StringEncoding]];
+        const char* retType = [methodSig methodReturnType];
+        if (strcmp(retType, @encode(NSInteger)) == 0) {
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSig];
+            [invocation setSelector:selector];
+            [invocation setTarget:model];
+            [invocation invoke];
+            NSInteger result = 0;
+            [invocation getReturnValue:&result];
+            [valueArray addObject:@(result)];
+            continue;
+        }
         
-//        id value= objc_msgSend(model,NSSelectorFromString([NSString stringWithUTF8String:propertyName]));
-        id value= [model performSelector:NSSelectorFromString([NSString stringWithUTF8String:propertyName])];
-        if(value ==nil)
-            [valueArray addObject:@""];
+        if (strcmp(retType, @encode(BOOL)) == 0) {
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSig];
+            [invocation setSelector:selector];
+            [invocation setTarget:model];
+            [invocation invoke];
+            BOOL result = 0;
+            [invocation getReturnValue:&result];
+            [valueArray addObject:@(result)];
+            continue;
+        }
+        
+        if (strcmp(retType, @encode(CGFloat)) == 0) {
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSig];
+            [invocation setSelector:selector];
+            [invocation setTarget:model];
+            [invocation invoke];
+            CGFloat result = 0;
+            [invocation getReturnValue:&result];
+            [valueArray addObject:@(result)];
+            continue;
+        }
+        
+        if (strcmp(retType, @encode(NSUInteger)) == 0) {
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSig];
+            [invocation setSelector:selector];
+            [invocation setTarget:model];
+            [invocation invoke];
+            NSUInteger result = 0;
+            [invocation getReturnValue:&result];
+            [valueArray addObject:@(result)];
+            continue;
+        }
+        _Pragma("clang diagnostic push")
+        _Pragma("clang diagnostic ignored \"-Warc-performSelector-leaks\"")
+        id value = [model performSelector:selector];
+        _Pragma("clang diagnostic pop")
+        if (value ==nil)
+        [valueArray addObject:@""];
         else {
-            [valueArray addObject:value];
+            if ([value isKindOfClass:[NSDictionary class]] ||
+                [value isKindOfClass:[NSMutableDictionary class]] ||
+                [value isKindOfClass:[NSArray class]] ||
+                [value isKindOfClass:[NSMutableArray class]]) {
+                
+                [valueArray addObject:[AZDao jsonStrWithJSONObject:value]?:value];
+            } else {
+                [valueArray addObject:value];
+            }
         }
     }
     free(properties);
@@ -239,21 +266,76 @@
     return returnDic;
 }
 
-+(NSArray *)propertyListFromClass:(Class)className
-{
++ (NSDictionary *)propertyListFromClass:(Class)className {
     u_int count;
     objc_property_t *properties = class_copyPropertyList(className, &count);
-    NSMutableArray *propertyArray = [NSMutableArray arrayWithCapacity:count];
+    NSMutableDictionary *propertyDic = [NSMutableDictionary dictionary];
     for (int i = 0; i < count; i++)
     {
-        
         objc_property_t prop=properties[i];
         const char *propertyName = property_getName(prop);
-        [propertyArray addObject:[NSString stringWithCString:propertyName encoding:NSUTF8StringEncoding]];
+        const char *propertyAttribute = property_getAttributes(prop);
+        [propertyDic setValue:[AZDao propertyTypeFromAttributeName:[NSString stringWithCString:propertyAttribute encoding:NSUTF8StringEncoding]] forKey:[NSString stringWithCString:propertyName encoding:NSUTF8StringEncoding]];
     }
     free(properties);
-
-    return [propertyArray copy];
+    return [propertyDic copy];
+}
+    
+#pragma mark - private
++ (NSString const*)sqlLiteTypeFrom:(const char *)strChar {
+    NSString *attributeName=[NSString stringWithCString:strChar encoding:NSUTF8StringEncoding];
+    return  [AZDao sqlLiteTypeFromAttributeName:attributeName];
+}
+    
++ (NSString *)propertyTypeFromAttributeName:(NSString *)attributeName {
+    NSArray *attrAry=[attributeName componentsSeparatedByString:@","];
+    NSString *propertyType =[attrAry firstObject];
+    return propertyType;
+}
+    
++ (NSArray *)intTypeArray {
+    NSArray *intTypeArray =  @[@"c",@"C",@"i",@"I",@"q",@"Q"];
+    return intTypeArray;
+}
+    
++ (NSArray *)textTypeArray {
+    NSArray *textTypeArray = @[@"f",@"F",@"d",@"D",
+                               @"NSNumber",
+                               @"NSDictionary",
+                               @"NSMutableDictionary",
+                               @"NSArray",
+                               @"NSMutableArray",
+                               @"NSString"
+                               ];
+    return textTypeArray;
+}
+    
++ (NSArray *)blobTypeArray {
+    NSArray * blobTypeArray = @[@"UIImage"];
+    return blobTypeArray;
+}
+    
++ (NSString *)jsonStrWithJSONObject:(id)jsonObjc {
+    NSData *data = [NSJSONSerialization dataWithJSONObject:jsonObjc options:NSJSONWritingPrettyPrinted error:nil];
+    NSString *jsonStr = nil;
+    if (data) {
+        jsonStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    }
+    return jsonStr;
+}
+    
++ (id)jsonObjcWithJSONStr:(NSString *)jsonStr {
+    if (jsonStr == nil) {
+        return nil;
+    }
+    NSData *jsonData = [jsonStr dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *err;
+    id jsonObjc = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&err];
+    if(err) {
+        NSLog(@"json解析失败：%@",err);
+        return nil;
+    }
+    return jsonObjc;
 }
 
 @end

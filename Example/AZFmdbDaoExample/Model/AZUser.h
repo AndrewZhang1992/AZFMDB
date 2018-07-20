@@ -17,11 +17,10 @@
 @property (nonatomic,copy)NSString *name;
 @property (nonatomic,strong)NSNumber *age;
 @property (nonatomic,strong)NSNumber *sex;
-
+@property (nonatomic,assign)NSInteger ageNum;
+@property (nonatomic,assign)BOOL sexBool;
+@property (nonatomic,assign)NSTimeInterval time;
 @property (nonatomic,strong)NSMutableArray *ary;
-
-
-@property (nonatomic,copy)NSString *phone;
-@property (nonatomic,copy)NSString *mail;
+@property (nonatomic,strong)NSDictionary *dic;
 
 @end

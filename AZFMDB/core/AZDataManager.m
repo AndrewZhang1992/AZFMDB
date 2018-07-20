@@ -16,65 +16,55 @@
 
 @implementation AZDataManager
 
-/**
- *  单例对象
- *
- *  @return 实例
- */
-+(instancetype)shareManager
-{
-    static AZDataManager *db=nil;
-    static dispatch_once_t once_DB;
-    dispatch_once(&once_DB, ^{
-        db=[[AZDataManager alloc] initWithPath:DB_PATH_ADDR];
-        [db createAppVersionTable];
-    });
-    return db;
+- (instancetype)initWithPath:(NSString *)path {
+    if (self = [super initWithPath:path]) {
+        [self createAppVersionTable];
+        [AZDataMigration startSQLWithDataManager:self];
+    }
+    return self;
 }
-
+    
+#pragma mark - private
 -(void)createAppVersionTable
 {
-    [self open];
-    
     [self createTableWithName:@"tb_app_version" Column:@{
                                                          @"version":@"text",
                                                          @"time":@"text"
                                                          }];
-    [self close];
 }
 
-/**
- *  根据模型 创建表
- *  表名 为 tb_modelname
- *
- *  @param model
- */
+- (NSDictionary *)filterPrimaryKeyDefaultValueWithColumns:(NSDictionary *)colunms InTable:(NSString *)tableName  {
+    NSMutableDictionary *tempColums = [NSMutableDictionary dictionaryWithDictionary:colunms];
+    NSString *sql_recond = [NSString stringWithFormat:@"PRAGMA table_info('%@')",tableName];
+    FMResultSet *sql_recond_resultSet = [self executeQuery:sql_recond];
+    NSString *primaryKey = nil;
+    while ([sql_recond_resultSet next]) {
+        if ([sql_recond_resultSet boolForColumn:@"pk"]) {
+            primaryKey = [sql_recond_resultSet stringForColumn:@"name"];
+        }
+    }
+    [sql_recond_resultSet close];
+    if(primaryKey && colunms[primaryKey] && [colunms[primaryKey] integerValue]==0) {
+        [tempColums removeObjectForKey:primaryKey];
+    }
+    return [tempColums copy];
+}
+
+#pragma mark - public
 -(void)createTableModel:(id)model
 {
     NSString *tableName=[AZDao tableNameByModel:model];
     [self createTableWithName:tableName Column:[AZDao propertySqlDictionaryFromModel:model]];
-#if DEBUG
-    [AZDataMigration dataMigrationClass:[model class]];
-#else
-    
-#endif
+    [AZDataMigration dataMigrationClass:[model class] DataManager:self];
 }
 
 -(void)createTableClassName:(Class)className
 {
     NSString *tableName=[AZDao tableNameByClassName:className];
     [self createTableWithName:tableName Column:[AZDao propertySqlDictionaryFromClass:className]];
-    [AZDataMigration dataMigrationClass:className];
+    [AZDataMigration dataMigrationClass:className DataManager:self];
 }
 
-
-/**
- *   根据模型 创建表
- *   表名 为 tb_modelname
- *
- *  @param model
- *  @param key   指定主键（该主键必须在model的成员变量中）
- */
 -(void)createTableModel:(id)model primaryKey:(NSString *)key
 {
     NSDictionary *sqlDic=[AZDao propertySqlDictionaryFromModel:model];
@@ -88,7 +78,7 @@
     }
     NSString *tableName=[AZDao tableNameByModel:model];
     [self createTableWithName:tableName primaryKey:key type:sql_int otherColumn:sqlDic];
-    [AZDataMigration dataMigrationClass:[model class]];
+    [AZDataMigration dataMigrationClass:[model class] DataManager:self];
 }
 
 -(void)createTableClassName:(Class)className primaryKey:(NSString *)key
@@ -104,13 +94,9 @@
     }
     NSString *tableName=[AZDao tableNameByClassName:className];
     [self createTableWithName:tableName primaryKey:key type:sql_int otherColumn:sqlDic];
-    [AZDataMigration dataMigrationClass:className];
+    [AZDataMigration dataMigrationClass:className DataManager:self];
 }
-/**
- *  增加model
- *
- *  @param model
- */
+
 -(BOOL)insertModel:(id)model
 {
     return [self insertModel:model inTable:[AZDao tableNameByModel:model]];
@@ -118,17 +104,10 @@
 
 -(BOOL)insertModel:(id)model inTable:(NSString *)tableName
 {
-    BOOL ret= [self insertRecordWithColumns:[AZDao propertyKeyValueFromModel:model] toTable:tableName];
+    BOOL ret= [self insertRecordWithColumns:[self filterPrimaryKeyDefaultValueWithColumns:[AZDao propertyKeyValueFromModel:model] InTable:tableName] toTable:tableName];
     return ret;
 }
 
-/**
- *  批量增加model
- *
- *  @param ary NSArray< model >
- *
- *  @return bool
- */
 -(BOOL)insertModelsByTransaction:(NSArray *)ary
 {
    return  [self insertModelsByTransaction:ary inTable:[AZDao tableNameByModel:[ary firstObject]]];
@@ -145,13 +124,6 @@
     return ret;
 }
 
-/**
- *  删除某一个model
- *
- *  @param model
- *
- *  @return
- */
 -(BOOL)removeOneModel:(id)model
 {
     return [self removeOneModel:model inTable:[AZDao tableNameByModel:model]];
@@ -159,17 +131,34 @@
 
 -(BOOL)removeOneModel:(id)model  inTable:(NSString *)tableName
 {
-    BOOL ret=[self removeRecordWithCondition:[AZDao conditionAllByModel:model] fromTable:tableName];
+    BOOL ret = [self removeRecordWithCondition:[AZDao conditionAllByModel:model] fromTable:tableName];
     return ret;
 }
 
-/**
- *  删除表下的所有该model
- *
- *  @param model
- *
- *  @return
- */
+- (BOOL)removeSomeModel:(NSArray *)modelArray {
+    return [self removeSomeModel:modelArray inTable:[AZDao tableNameByModel:[modelArray firstObject]]];
+}
+    
+- (BOOL)removeSomeModel:(NSArray *)modelArray inTable:(NSString *)tableName {
+    if (modelArray.count<=0) {
+        return NO;
+    }
+    NSMutableArray *sqlArray = [NSMutableArray array];
+    for (id eleModel in modelArray) {
+        NSString * sql = [NSString stringWithFormat:@"DELETE FROM %@", tableName];
+        NSString *condition = [AZDao conditionAllByModel:eleModel];
+        if (condition!=nil) {
+            sql=[sql stringByAppendingFormat:@" %@;",condition];
+            [sqlArray addObject:sql];
+        }
+    }
+    BOOL ret = NO;
+    if (sqlArray.count>0) {
+        ret = [self executeUpdateByTransaction:sqlArray];
+    }
+    return ret;
+}
+
 -(BOOL)removeAllModel:(Class)className
 {
     return [self removeAllModel:className inTable:[AZDao tableNameByClassName:className]];
@@ -181,17 +170,6 @@
     return ret;
 }
 
-
-
-
-/**
- *  修改某一个model
- *
- *  @param model
- *  @param condition 条件
- *
- *  @return
- */
 -(BOOL)updateModel:(id)newModel Condition:(NSString *)condition
 {
     return [self updateModel:newModel Condition:condition inTable:[AZDao tableNameByModel:newModel]];
@@ -206,13 +184,6 @@
 
 
 
-/**
- *  修改model
- *
- *  @param model
- *
- *  @return
- */
 -(BOOL)updateOneNewModel:(id)newModel oldModel:(id)oldModel
 {
     return [self updateOneNewModel:newModel oldModel:oldModel inTable:[AZDao tableNameByModel:oldModel]];
@@ -230,13 +201,6 @@
 }
 
 
-/**
- *  查询 返回所有的model
- *
- *  @param className 类名
- *
- *  @return NSArray<model>
- */
 -(NSArray *)findAllModelWithClass:(Class)className
 {
     //全部查询
@@ -248,14 +212,7 @@
     return [self findModel:className WithCondition:nil inTable:tableName];
 }
 
-/**
- *  根据sql语句查询返回该model
- *
- *  @param className 类名
- *  @param condition 条件查询语句
- *
- *  @return NSArray<model>
- */
+
 -(NSArray *)findModel:(Class)className WithCondition:(NSString *)condition
 {
     return [self findModel:className WithCondition:condition inTable:[AZDao tableNameByClassName:className]];
@@ -267,7 +224,32 @@
     NSMutableArray *array=[NSMutableArray array];
     while (rs.next) {
         id anyObject= [className new];
-        [anyObject setValuesForKeysWithDictionary:rs.resultDictionary];
+        NSDictionary *propertyDic = [AZDao propertyListFromClass:className];
+        NSArray *propertyList = propertyDic.allKeys;
+        NSDictionary *resultDic = rs.resultDictionary;
+        for (NSString *key in resultDic) {
+            if ([propertyList containsObject:key]) {
+                NSString *typeStr = propertyDic[key];
+                if ([typeStr hasPrefix:@"T@"]) {
+                    // cocoa 下的类名
+                    NSString *className=[typeStr substringWithRange:NSMakeRange(3, typeStr.length-2-2)];
+                    if ([className isEqualToString:@"NSDictionary"] ||
+                        [className isEqualToString:@"NSMutableDictionary"] ||
+                        [className isEqualToString:@"NSArray"] ||
+                        [className isEqualToString:@"NSMutableArray"] ) {
+                        NSError *error = nil;
+                        NSData *data = [resultDic[key] dataUsingEncoding:NSUTF8StringEncoding];
+                        id jsonObjc = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+                        if (error) {
+                            NSLog(@"[AZDb] error: %@",error);
+                        }
+                        [anyObject setValue:jsonObjc?:resultDic[key] forKey:key];
+                        continue;
+                    }
+                }
+                [anyObject setValue:resultDic[key] forKey:key];
+            }
+        }
         [array addObject:anyObject];
     }
     return array;

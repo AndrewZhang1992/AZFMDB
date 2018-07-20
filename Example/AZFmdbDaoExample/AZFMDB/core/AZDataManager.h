@@ -9,19 +9,8 @@
 #import "AZBaseDataManager.h"
 #import "AZDao.h"
 
-// 默认db存在的路径
-#define DB_PATH_ADDR [NSString stringWithFormat:@"%@/Library/testDB.db",NSHomeDirectory()]
 
 @interface AZDataManager : AZBaseDataManager
-
-
-/**
- *  单例对象
- *
- *  @return 实例
- */
-+(instancetype)shareManager;
-
 
 #pragma mark -.- 对外接口
 
@@ -31,14 +20,14 @@
  *
  *  @param model
  */
--(void)createTableModel:(id)model;
+- (void)createTableModel:(id)model;
 
 /**
  *  根据类 创建表
  *  表名 为 tb_className
  *  @param className Class
  */
--(void)createTableClassName:(Class)className;
+- (void)createTableClassName:(Class)className;
 
 
 /**
@@ -48,7 +37,7 @@
  *  @param model
  *  @param key   指定主键（该主键必须在model的成员变量中,且该类型应该为NSInteger）
  */
--(void)createTableModel:(id)model primaryKey:(NSString *)key;
+- (void)createTableModel:(id)model primaryKey:(NSString *)key;
 
 /**
  *   根据类名 创建表
@@ -57,7 +46,7 @@
  *  @param className
  *  @param key   指定主键（该主键必须在model的成员变量中,且该类型应该为NSInteger）
  */
--(void)createTableClassName:(Class)className primaryKey:(NSString *)key;
+- (void)createTableClassName:(Class)className primaryKey:(NSString *)key;
 
 
 /**
@@ -65,7 +54,7 @@
  *
  *  @param model
  */
--(BOOL)insertModel:(id)model;
+- (BOOL)insertModel:(id)model;
 
 
 /**
@@ -76,7 +65,7 @@
  *
  *  @return
  */
--(BOOL)insertModel:(id)model inTable:(NSString *)tableName;
+- (BOOL)insertModel:(id)model inTable:(NSString *)tableName;
 
 
 /**
@@ -86,7 +75,7 @@
  *
  *  @return bool
  */
--(BOOL)insertModelsByTransaction:(NSArray *)ary;
+- (BOOL)insertModelsByTransaction:(NSArray *)ary;
 
 
 
@@ -99,7 +88,7 @@
  *
  *  @return bool
  */
--(BOOL)insertModelsByTransaction:(NSArray *)ary inTable:(NSString *)tableName;
+- (BOOL)insertModelsByTransaction:(NSArray *)ary inTable:(NSString *)tableName;
 
 
 
@@ -110,7 +99,7 @@
  *
  *  @return
  */
--(BOOL)removeOneModel:(id)model;
+- (BOOL)removeOneModel:(id)model;
 
 
 
@@ -122,9 +111,23 @@
  *
  *  @return
  */
--(BOOL)removeOneModel:(id)model  inTable:(NSString *)tableName;
+- (BOOL)removeOneModel:(id)model  inTable:(NSString *)tableName;
 
-
+/**
+ 批量删除一些model
+ 
+ @param modelArray NSArray
+ @return Bool
+ */
+- (BOOL)removeSomeModel:(NSArray *)modelArray;
+    
+/**
+ 批量删除一些model
+ 
+ @param modelArray NSArray
+ @return Bool
+ */
+- (BOOL)removeSomeModel:(NSArray *)modelArray inTable:(NSString *)tableName;
 
 /**
  *  删除表下的所有该model
@@ -133,7 +136,7 @@
  *
  *  @return
  */
--(BOOL)removeAllModel:(Class)className;
+- (BOOL)removeAllModel:(Class)className;
 
 
 
@@ -145,7 +148,7 @@
  *
  *  @return
  */
--(BOOL)removeAllModel:(Class)className inTable:(NSString *)tableName;
+- (BOOL)removeAllModel:(Class)className inTable:(NSString *)tableName;
 
 
 
@@ -157,7 +160,7 @@
  *
  *  @return
  */
--(BOOL)updateModel:(id)newModel Condition:(NSString *)condition;
+- (BOOL)updateModel:(id)newModel Condition:(NSString *)condition;
 
 
 
@@ -171,7 +174,7 @@
  *
  *  @return
  */
--(BOOL)updateModel:(id)newModel Condition:(NSString *)condition inTable:(NSString *)tableName;
+- (BOOL)updateModel:(id)newModel Condition:(NSString *)condition inTable:(NSString *)tableName;
 
 
 
@@ -182,7 +185,7 @@
  *
  *  @return
  */
--(BOOL)updateOneNewModel:(id)newModel oldModel:(id)oldModel;
+- (BOOL)updateOneNewModel:(id)newModel oldModel:(id)oldModel;
 
 
 
@@ -194,7 +197,7 @@
  *
  *  @return
  */
--(BOOL)updateOneNewModel:(id)newModel oldModel:(id)oldModel inTable:(NSString *)tableName;
+- (BOOL)updateOneNewModel:(id)newModel oldModel:(id)oldModel inTable:(NSString *)tableName;
 
 
 
@@ -205,7 +208,7 @@
  *
  *  @return NSArray<model>
  */
--(NSArray *)findAllModelWithClass:(Class)className;
+- (NSArray *)findAllModelWithClass:(Class)className;
 
 
 /**
@@ -216,7 +219,7 @@
  *
  *  @return NSArray<model>
  */
--(NSArray *)findAllModelWithClass:(Class)className inTable:(NSString *)tableName;
+- (NSArray *)findAllModelWithClass:(Class)className inTable:(NSString *)tableName;
 
 
 /**
@@ -227,7 +230,7 @@
  *
  *  @return NSArray<model>
  */
--(NSArray *)findModel:(Class)className WithCondition:(NSString *)condition;
+- (NSArray *)findModel:(Class)className WithCondition:(NSString *)condition;
 
 
 
@@ -240,7 +243,7 @@
  *
  *  @return NSArray<model>
  */
--(NSArray *)findModel:(Class)className WithCondition:(NSString *)condition inTable:(NSString *)tableName;
+- (NSArray *)findModel:(Class)className WithCondition:(NSString *)condition inTable:(NSString *)tableName;
 
 /**
  *  查找model 指定列名
@@ -251,7 +254,7 @@
  *
  *  @return NSArray<model>
  */
--(NSArray *)findModel:(Class)className ColumnNames:(NSArray *)cloumnNames WithCondition:(NSString *)condition;
+- (NSArray *)findModel:(Class)className ColumnNames:(NSArray *)cloumnNames WithCondition:(NSString *)condition;
 
 
 /**
@@ -264,7 +267,7 @@
  *
  *  @return NSArray<model>
  */
--(NSArray *)findModel:(Class)className ColumnNames:(NSArray *)cloumnNames WithCondition:(NSString *)condition inTable:(NSString *)tableName;
+- (NSArray *)findModel:(Class)className ColumnNames:(NSArray *)cloumnNames WithCondition:(NSString *)condition inTable:(NSString *)tableName;
 
 
 

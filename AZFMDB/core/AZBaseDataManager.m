@@ -23,12 +23,8 @@
         BOOL ret = [_database open];
         if (!ret) {
             perror("1：缓存数据库打开失败  2：或者创建数据库失败");
-        }else
-        {
-            [_database close];
         }
         _lock = [[NSLock alloc] init];
-        
     }
     return self;
 }
@@ -36,6 +32,7 @@
 - (void)createTableWithName:(NSString *)name Column:(NSDictionary *)dict
 {
     [_lock lock];
+    [_database open];
     //字典中，key是列的名字，值是列的类型，如果有附加参数，直接写到值中
     NSString * sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS %@(", name];
     for (NSString * columnName in dict) {
@@ -54,6 +51,7 @@
 - (void)createTableWithName:(NSString *)name primaryKey:(NSString *)key type:(NSString *)type otherColumn:(NSDictionary *)dict
 {
     [_lock lock];
+    [_database open];
     //字典中，key是列的名字，值是列的类型，如果有附加参数，直接写到值中
     NSString * sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS %@(%@ %@ PRIMARY KEY", name, key, type];
     if ([type isEqualToString:@"integer"] || [type isEqualToString:@"INTEGER"])
@@ -79,20 +77,20 @@
 - (BOOL)insertRecordWithColumns:(NSDictionary *)dict toTable:(NSString *)tableName
 {
     [_lock lock];
-    
+    [_database open];
     NSString * columnNames = [dict.allKeys componentsJoinedByString:@", "];
     
     NSMutableArray * xArray = [NSMutableArray array];
-    for (NSString * key in dict)
-    {
+    _Pragma("clang diagnostic push")
+    _Pragma("clang diagnostic ignored \"-Wunused-variable\"") // -Wunused-variable  -Warc-performSelector-leaks
+    for (NSString * key in dict) {
         [xArray addObject:@"?"];
     }
-    
+    _Pragma("clang diagnostic pop")
     NSString * valueStr = [xArray componentsJoinedByString:@", "];
     
     NSString * sql = [NSString stringWithFormat:@"INSERT INTO %@(%@) VALUES(%@);", tableName, columnNames, valueStr];
     //INSERT INTO 女演员(ID, 姓名) VALUES(?, ?)
-    
     BOOL ret = [_database executeUpdate:sql withArgumentsInArray:dict.allValues];
     if (ret == NO) {
         perror("插入错误");
@@ -105,7 +103,7 @@
 -(BOOL)insertRecordByTransactionWithColumns:(NSArray *)ary toTable:(NSString *)tableName
 {
     [_lock lock];
-
+    [_database open];
     [_database beginTransaction];
     BOOL isRollBack = NO;
     @try {
@@ -114,10 +112,12 @@
         {
             NSString * columnNames = [dict.allKeys componentsJoinedByString:@", "];
             NSMutableArray * xArray = [NSMutableArray array];
-            for (NSString * key in dict)
-            {
+            _Pragma("clang diagnostic push")
+            _Pragma("clang diagnostic ignored \"-Wunused-variable\"") // -Wunused-variable  -Warc-performSelector-leaks
+            for (NSString * key in dict) {
                 [xArray addObject:@"?"];
             }
+            _Pragma("clang diagnostic pop")
             NSString * valueStr = [xArray componentsJoinedByString:@", "];
             NSString * sql = [NSString stringWithFormat:@"INSERT INTO %@(%@) VALUES(%@);", tableName, columnNames, valueStr];
             BOOL ret = [_database executeUpdate:sql withArgumentsInArray:dict.allValues];
@@ -143,10 +143,10 @@
 }
 
 
-- (BOOL)removeRecordWithCondition:(NSString *)condition fromTable:(NSString *)tableName
+- (BOOL)removeRecordWithCondition:(nullable NSString *)condition fromTable:(NSString *)tableName
 {
     [_lock lock];
-   
+    [_database open];
     NSString * sql = [NSString stringWithFormat:@"DELETE FROM %@", tableName];
     
     if (condition!=nil) {
@@ -168,7 +168,7 @@
 -(BOOL)updataRecordWithColumns:(NSDictionary *)dict Condition:(NSString *)condition toTable:(NSString *)tableName
 {
     [_lock lock];
-    
+    [_database open];
     NSString * sql = [NSString stringWithFormat:@"UPDATE %@ SET  ", tableName];
     NSMutableArray * xArray = [NSMutableArray array];
     for (NSString *key in dict) {
@@ -191,7 +191,7 @@
 -(BOOL)updataRecordByTransactionWithColumns:(NSArray *)ary Condition:(NSString *)condition toTable:(NSString *)tableName
 {
     [_lock lock];
-    
+    [_database open];
     [_database beginTransaction];
     BOOL isRollBack = NO;
     @try {
@@ -231,10 +231,10 @@
 }
 
 
-- (FMResultSet *)findColumnNames:(NSArray *)names recordsWithCondition:(NSString *)condition fromTable:(NSString *)tableName
+- (FMResultSet *)findColumnNames:(nullable NSArray *)names recordsWithCondition:(nullable NSString *)condition fromTable:(NSString *)tableName
 {
     [_lock lock];
-   
+    [_database open];
     NSString * colNames = nil;
     if (names == nil) {
         colNames = @"*";
@@ -313,6 +313,7 @@
 
 -(FMResultSet *)executeQuery:(NSString *)sql
 {
+    [_database open];
     return [_database executeQuery:sql];
 }
 
