@@ -68,6 +68,7 @@ extern NSString * const sql_blob;
 
 /**
  *  获取一个对象的 成员变量 键值对 （映射）
+ * !!! 对像中的成员变量必须是 cocoa 下的类型 不能有基础类型
  *
  *  @param model model实例
  *

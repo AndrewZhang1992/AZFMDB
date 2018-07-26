@@ -11,6 +11,7 @@
 #define AZFMDB_h
 
 #import "AZDataManager.h"
+#import "AZQueueDataManager.h"
 #import "AZDataMigration.h"
 #import "AZDao.h"
 

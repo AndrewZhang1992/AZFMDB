@@ -18,7 +18,7 @@
  *  根据模型 创建表
  *  表名 为 tb_modelname
  *
- *  @param model
+ *  @param model 实例
  */
 - (void)createTableModel:(id)model;
 
@@ -34,7 +34,7 @@
  *   根据模型 创建表
  *   表名 为 tb_modelname
  *
- *  @param model
+ *  @param model 实例
  *  @param key   指定主键（该主键必须在model的成员变量中,且该类型应该为NSInteger）
  */
 - (void)createTableModel:(id)model primaryKey:(NSString *)key;
@@ -43,7 +43,7 @@
  *   根据类名 创建表
  *   表名 为 tb_className
  *
- *  @param className
+ *  @param className 类名
  *  @param key   指定主键（该主键必须在model的成员变量中,且该类型应该为NSInteger）
  */
 - (void)createTableClassName:(Class)className primaryKey:(NSString *)key;
@@ -52,7 +52,6 @@
 /**
  *  增加model
  *
- *  @param model
  */
 - (BOOL)insertModel:(id)model;
 
@@ -60,10 +59,8 @@
 /**
  *  增加model
  *
- *  @param model
  *  @param tableName 表名
  *
- *  @return
  */
 - (BOOL)insertModel:(id)model inTable:(NSString *)tableName;
 
@@ -94,10 +91,6 @@
 
 /**
  *  删除某一个model
- *
- *  @param model
- *
- *  @return
  */
 - (BOOL)removeOneModel:(id)model;
 
@@ -106,10 +99,8 @@
 /**
  *  删除某一个model
  *
- *  @param model
  *  @param tableName 表名
  *
- *  @return
  */
 - (BOOL)removeOneModel:(id)model  inTable:(NSString *)tableName;
 
@@ -134,11 +125,8 @@
  *
  *  @param className class
  *
- *  @return
  */
 - (BOOL)removeAllModel:(Class)className;
-
-
 
 /**
  *  删除表下的所有该model
@@ -146,7 +134,6 @@
  *  @param className class
  *  @param tableName 表名
  *
- *  @return
  */
 - (BOOL)removeAllModel:(Class)className inTable:(NSString *)tableName;
 
@@ -155,24 +142,18 @@
 /**
  *  修改某一个model
  *
- *  @param model
  *  @param condition 条件
  *
- *  @return
  */
 - (BOOL)updateModel:(id)newModel Condition:(NSString *)condition;
-
-
 
 
 /**
  *  修改某一个model
  *
- *  @param model
  *  @param condition 条件
  *  @param tableName 表名
  *
- *  @return
  */
 - (BOOL)updateModel:(id)newModel Condition:(NSString *)condition inTable:(NSString *)tableName;
 
@@ -181,21 +162,14 @@
 /**
  *  修改某一个model
  *
- *  @param model
- *
- *  @return
  */
 - (BOOL)updateOneNewModel:(id)newModel oldModel:(id)oldModel;
-
 
 
 /**
  *  修改某一个model
  *
- *  @param model
  *  @param tableName 表名
- *
- *  @return
  */
 - (BOOL)updateOneNewModel:(id)newModel oldModel:(id)oldModel inTable:(NSString *)tableName;
 

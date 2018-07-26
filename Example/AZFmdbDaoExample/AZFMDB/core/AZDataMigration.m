@@ -11,7 +11,7 @@
 
 @implementation AZDataMigration
 
-+(void)startSQLWithDataManager:(AZDataManager *)dataManager
++(void)startSQLWithDataManager:(AZBaseDataManager *)dataManager
 {
     // 创建版本号 默认为当前版本
     if (![AZDataMigration checkVersionWithDataManager:dataManager]) {
@@ -31,7 +31,7 @@
     }
 }
 
-+(NSArray *)searchBundleSQLWithDataManager:(AZDataManager *)dataManager
++(NSArray *)searchBundleSQLWithDataManager:(AZBaseDataManager *)dataManager
 {
     NSMutableArray* sqlArray = [NSMutableArray array];
     NSMutableArray *fileArray = [NSMutableArray array];
@@ -73,7 +73,7 @@
     return sqlArray;
 }
 
-+(void)wirteCurrentVersionToDBWithDataManager:(AZDataManager *)dataManager
++(void)wirteCurrentVersionToDBWithDataManager:(AZBaseDataManager *)dataManager
 {
     NSString *current_version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
     NSTimeInterval time = [NSDate timeIntervalSinceReferenceDate];
@@ -84,7 +84,7 @@
                                  toTable:@"tb_app_version"];
 }
 
-+(BOOL)checkVersionWithDataManager:(AZDataManager *)dataManager
++(BOOL)checkVersionWithDataManager:(AZBaseDataManager *)dataManager
 {
     BOOL flag = NO;
     NSString *max_version = [AZDataMigration getMaxVersionFromDBWithDataManager:dataManager];
@@ -96,7 +96,7 @@
 }
 
 
-+(NSString *)getMaxVersionFromDBWithDataManager:(AZDataManager *)dataManager
++(NSString *)getMaxVersionFromDBWithDataManager:(AZBaseDataManager *)dataManager
 {
     NSString *maxVersion=@"0";
     FMResultSet *rs = [dataManager executeQuery:@"SELECT time,max(version) as version FROM tb_app_version"];
@@ -137,18 +137,18 @@
 }
 
 
-+(void)dataMigrationClass:(Class)className DataManager:(AZDataManager *)dataManager
++(void)dataMigrationClass:(Class)className DataManager:(AZBaseDataManager *)dataManager
 {
     [AZDataMigration dataMigrationClass:className TableName:[AZDao tableNameByClassName:className] DataManager:dataManager];
 }
 
-+(void)dataMigrationClass:(Class)className TableName:(NSString *)tableName DataManager:(AZDataManager *)dataManager
++(void)dataMigrationClass:(Class)className TableName:(NSString *)tableName DataManager:(AZBaseDataManager *)dataManager
 {
     [AZDataMigration dataMigrationClass:className TableName:tableName IgnoreRecondNames:nil DataManager:dataManager];
 }
 
 
-+(void)dataMigrationClass:(Class)className TableName:(NSString *)tableName IgnoreRecondNames:(nullable NSArray *)ignoreRecondNames DataManager:(AZDataManager *)dataManager
++(void)dataMigrationClass:(Class)className TableName:(NSString *)tableName IgnoreRecondNames:(nullable NSArray *)ignoreRecondNames DataManager:(AZBaseDataManager *)dataManager
 {
     NSArray *propertyList = [AZDao propertyListFromClass:className].allKeys;
     

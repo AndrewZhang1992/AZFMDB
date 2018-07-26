@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "AZDataManager.h"
+#import "AZBaseDataManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,16 +20,16 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  *  开始数据迁移，执行sql 语句
  */
-+(void)startSQLWithDataManager:(AZDataManager *)dataManager;;
++(void)startSQLWithDataManager:(AZBaseDataManager *)dataManager;;
 
-#pragma mark - 以下api 在 其他工程中，不使用AZDataManager 创建的表时，可以使用
+#pragma mark - 以下api 在 其他工程中，不使用AZBaseDataManager 创建的表时，可以使用
 /**
  *  检测db中 tb_className 表中 是否需要添加新字段
  *
  *  @discussion 默认数据表名为： tb_ ' className '
  *  @param className Class 类名
  */
-+(void)dataMigrationClass:(Class)className DataManager:(AZDataManager *)dataManager;
++(void)dataMigrationClass:(Class)className DataManager:(AZBaseDataManager *)dataManager;
 
 /**
  *  检测db中 tableName 表中 是否需要添加新字段
@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param className Class 类名
  *  @param tableName 表名
  */
-+(void)dataMigrationClass:(Class)className TableName:(NSString *)tableName DataManager:(AZDataManager *)dataManager;
++(void)dataMigrationClass:(Class)className TableName:(NSString *)tableName DataManager:(AZBaseDataManager *)dataManager;
 
 
 /**
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param tableName         表名
  *  @param ignoreRecondNames NSArray<NSString> 不考虑的字段数组
  */
-+(void)dataMigrationClass:(Class)className TableName:(NSString *)tableName IgnoreRecondNames:(nullable NSArray *)ignoreRecondNames DataManager:(AZDataManager *)dataManager;
++(void)dataMigrationClass:(Class)className TableName:(NSString *)tableName IgnoreRecondNames:(nullable NSArray *)ignoreRecondNames DataManager:(AZBaseDataManager *)dataManager;
 
 
 @end
